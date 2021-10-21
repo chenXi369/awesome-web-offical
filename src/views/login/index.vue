@@ -251,13 +251,6 @@
           </div>
         </section>
       </footer>
-      <section>
-        <third-login
-          :title="title"
-          :dialogVisible="dialogVisible"
-          @closeDialog="closeDialog"
-        ></third-login>
-      </section>
 
       <section>
         <forget-dialog
@@ -269,6 +262,7 @@
 
       <section>
         <noPwd-reg
+          :phoneForm="phoneForm"
           :noPwdRegVisible="noPwdRegVisible"
           @closeNoPwdReg="closeNoPwdReg"
         ></noPwd-reg>
@@ -278,7 +272,6 @@
 </template>
 
 <script>
-import ThirdLogin from "./components/thirdLogin.vue";
 import ForgetDialog from "./components/forgetPwd.vue";
 import NoPwdReg from "./components/noPwdReg.vue";
 import Cookies from "js-cookie";
@@ -363,18 +356,12 @@ export default {
       loading: false,
       getSecond: 30,
       showSecond: false,
-
-      // 第三方登录的弹窗
-      dialogVisible: false,
-      title: "",
-
       forgetDialog: false,
       noPwdRegVisible: false,
     };
   },
   components: {
     NoPwdReg,
-    ThirdLogin,
     ForgetDialog,
   },
   created() {
@@ -466,6 +453,7 @@ export default {
                 if (res.code === 201) {
                   this.noPwdRegVisible = true;
                 } else if (res.code === 200) {
+                  console.log(111111)
                   this.$router.push({
                     path: "/user",
                   });
@@ -521,17 +509,15 @@ export default {
     },
     // 微信第三方登录
     openWxDialog() {
-      this.title = "微信登录";
-      this.dialogVisible = true;
+      // 微信登录
+      this.$router.push({
+        path: "/thirdLogin"
+      })
     },
     // qq第三方登录
     openQQDialog() {
-      this.title = "QQ登录";
-      this.dialogVisible = true;
-    },
-    // 关闭第三方登录的弹窗
-    closeDialog(val) {
-      this.dialogVisible = val;
+      // QQ登录
+
     },
     hiddenDialog(val) {
       this.forgetDialog = val;
@@ -584,6 +570,7 @@ export default {
     },
     closeNoPwdReg() {
       this.noPwdRegVisible = false;
+      this.getCodeImg()
     },
   },
 };

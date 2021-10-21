@@ -13,30 +13,6 @@
       label-width="80px"
       class="findPsd_form"
     >
-      <el-form-item prop="account" label="手机号">
-        <el-input
-          v-model.trim="form.account"
-          placeholder="请输入手机号"
-          maxlength="20"
-        ></el-input>
-      </el-form-item>
-      <el-form-item class="code" prop="code" label="验证码">
-        <el-input
-          v-model="form.code"
-          placeholder="请输入短信验证码"
-          maxlength="8"
-        ></el-input>
-        <el-button class="codeButton" v-show="showTime"
-          >{{ totalTime }}S
-        </el-button>
-        <el-button
-          class="checkedCode codeButton"
-          v-show="!showTime"
-          @click="getCode"
-          :loading="form.getCodeBtnStatus"
-          >获取验证码
-        </el-button>
-      </el-form-item>
       <el-form-item prop="userPwd" label="密码">
         <el-tooltip
           class="tool_tip"
@@ -104,13 +80,17 @@
 </template>
 
 <script>
-import { getCode, checkCode } from "@/api/login";
+import { register } from "@/api/user";
 
 export default {
   props: {
     noPwdRegVisible: {
       type: Boolean,
       default: false,
+    },
+    phoneForm: {
+      type: Object,
+      default: () => {},
     },
   },
   data() {
@@ -123,27 +103,12 @@ export default {
     };
     return {
       form: {
-        account: "",
-        code: "",
         userPwd: "",
         againUserPwd: "",
-        getCodeBtnStatus: false,
       },
       tip_flag: false,
       pwdflag: false,
-      showTime: false,
-      totalTime: 60, // 倒计时冷却时间
       formRule: {
-        account: [
-          {
-            required: true,
-            message: "请输入手机号",
-            trigger: "blur",
-          },
-        ],
-        code: [
-          { required: true, message: "请输入短信验证码", trigger: "blur" },
-        ],
         userPwd: [{ required: true, trigger: "blur", validator: validatePwd }],
         againUserPwd: [
           { required: true, message: "请再次输入你的密码", trigger: "blur" },
@@ -161,62 +126,29 @@ export default {
       this.$emit("closeNoPwdReg");
     },
     confirm() {
-      let data = {
-        verifyCode: this.form.code,
-      };
-      if (this.form.account.indexOf("@") === -1) {
-        data.type = 0;
-        data.telephone = this.form.account;
-      } else {
-        data.type = 1;
-        data.email = this.form.account;
-      }
       this.$refs["form"].validate((valid) => {
         if (valid) {
-          checkCode(data).then(() => {
-            this.actived = 2;
-          });
+          if (this.form.userPwd === this.form.againUserPwd) {
+            let data = {
+              telephone: this.phoneForm.loginNum,
+              password: this.$md5(this.form.userPwd).toUpperCase(),
+              verifyCode: this.phoneForm.verifyCode,
+              code: this.phoneForm.code,
+              uuid: this.phoneForm.uuid,
+            };
+            console.log(data);
+            register(data).then((res) => {
+              console.log(res.data)
+            });
+          } else {
+            this.form = {
+              userPwd: "",
+              againUserPwd: "",
+            };
+            this.$message.warning("两次输入的密码不一致，请重新设置");
+          }
         }
-      })
-    },
-    getCode() {
-      let value = this.form.account;
-      if (
-        (value !== "" && /^1[34578]\d{9}$/.test(value)) ||
-        /^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$/.test(value)
-      ) {
-        let params = {
-          type: null,
-        };
-        if (value.indexOf("@") === -1) {
-          params.type = 0;
-          params.telephone = value;
-        } else {
-          params.type = 1;
-          params.email = value;
-        }
-        this.form.getCodeBtnStatus = true;
-
-        getCode(params).then(() => {
-          this.showTime = true;
-          this.$message.success("验证码已发送!");
-          const timer = setInterval(() => {
-            // 某些定时器操作
-            if (this.totalTime > 0) {
-              this.totalTime--;
-            } else {
-              this.showTime = false;
-              clearInterval(timer);
-              this.totalTime = 30;
-              return;
-            }
-          }, 1000);
-          this.form.getCodeBtnStatus = false;
-        });
-      } else {
-        this.$message.warning("请输入正确的手机号！");
-        return;
-      }
+      });
     },
   },
 };
@@ -287,13 +219,6 @@ export default {
     top: 100%;
     left: 90px;
     font-family: "SourceHanSansSC";
-  }
-  .codeInput {
-    width: 64%;
-  }
-  .codeButton {
-    width: 33%;
-    margin-left: 10px;
   }
 }
 .login-container .el-form-item {
