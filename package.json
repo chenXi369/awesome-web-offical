@@ -11,12 +11,12 @@
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "echarts": "^5.2.1",
     "element-ui": "^2.15.2",
     "js-cookie": "^3.0.0",
     "js-md5": "^0.7.3",
     "nprogress": "^0.2.0",
     "vue": "^2.6.11",
-    "vue-qr": "^3.2.2",
     "vue-router": "^3.2.0",
     "vuex": "^3.6.2"
   },
