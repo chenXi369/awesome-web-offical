@@ -80,8 +80,6 @@
 </template>
 
 <script>
-import { register } from "@/api/user";
-
 export default {
   props: {
     noPwdRegVisible: {
@@ -135,11 +133,20 @@ export default {
               verifyCode: this.phoneForm.verifyCode,
               code: this.phoneForm.code,
               uuid: this.phoneForm.uuid,
+              checked: 1
             };
-            console.log(data);
-            register(data).then((res) => {
-              console.log(res.data)
-            });
+            this.$store
+                .dispatch("user/register", data)
+                .then(() => {
+                  this.$router.push({
+                    path: "/user"
+                  })
+                  this.loading = false;
+                })
+                .catch(() => {
+                  this.$emit("closeNoPwdReg");
+                  this.loading = false;
+                });
           } else {
             this.form = {
               userPwd: "",

@@ -3,7 +3,7 @@
     <el-dialog
       title="审核信息列表"
       :visible.sync="draftVisible"
-      width="800px"
+      width="1000px"
       :before-close="handleClose"
       :close-on-click-modal="false"
     >
@@ -30,12 +30,34 @@
         >
         </el-table-column>
         <el-table-column
+          label="信用代码"
+          width="200"
+          align="center"
+          prop="businesSocialCreditCode"
+        >
+        </el-table-column>
+        <el-table-column
+          label="注册日期"
+          width="200"
+          align="center"
+          prop="businessStartTime"
+        >
+        </el-table-column>
+        <el-table-column
+          label="法人姓名"
+          width="200"
+          align="center"
+          prop="businesLegalPerson"
+        >
+        </el-table-column>
+        <el-table-column
           label="公司邮箱"
           width="200"
           align="center"
           prop="companyEmail"
         >
         </el-table-column>
+
         <el-table-column
           label="服务电话"
           width="200"

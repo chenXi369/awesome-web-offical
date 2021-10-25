@@ -72,6 +72,29 @@
             </el-upload>
           </el-form-item>
           <template v-if="businessImgState">
+            <el-form-item prop="businesSocialCreditCode" label="信用代码">
+              <el-input
+                v-model.trim="customerForm.businesSocialCreditCode"
+                placeholder="请输入营业执照的信用代码"
+                maxlength="40"
+              ></el-input>
+            </el-form-item>
+            <el-form-item prop="businessStartTime" label="注册日期">
+              <el-date-picker
+                v-model="customerForm.businessStartTime"
+                type="date"
+                style="width: 100%"
+                placeholder="请输入公司注册时间"
+              >
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item prop="businesLegalPerson" label="法人姓名">
+              <el-input
+                v-model.trim="customerForm.businesLegalPerson"
+                placeholder="请输入法定代表人的姓名"
+                maxlength="40"
+              ></el-input>
+            </el-form-item>
             <el-form-item prop="businessName" label="企业名称">
               <el-input
                 v-model.trim="customerForm.businessName"
@@ -161,17 +184,17 @@ import {
 export default {
   components: { DraftList },
   data() {
-    const validateUserPhone = (rule, value, callback) => {
-      let isMob =
-        /^((\+?86)|(\(\+86\)))?(13[012356789][0-9]{8}|15[012356789][0-9]{8}|18[02356789][0-9]{8}|147[0-9]{8}|1349[0-9]{7})$/;
-      if (value.length == "") {
-        callback(new Error("请输入服务电话"));
-      } else if (/^1[34578]\d{9}$/.test(value) || isMob.test(value)) {
-        callback();
-      } else {
-        callback(new Error("请输入正确的服务电话"));
-      }
-    };
+    // const validateUserPhone = (rule, value, callback) => {
+    //   let isMob =
+    //     /^((\+?86)|(\(\+86\)))?(13[012356789][0-9]{8}|15[012356789][0-9]{8}|18[02356789][0-9]{8}|147[0-9]{8}|1349[0-9]{7})$/;
+    //   if (value.length == "") {
+    //     callback(new Error("请输入服务电话"));
+    //   } else if (/^1[34578]\d{9}$/.test(value) || isMob.test(value)) {
+    //     callback();
+    //   } else {
+    //     callback(new Error("请输入正确的服务电话"));
+    //   }
+    // };
     const validateEmail = (rule, value, callback) => {
       if (value.length == "") {
         callback(new Error("请输入邮箱"));
@@ -208,10 +231,16 @@ export default {
         reviewMsg: "", // 备注
         saasCompanyId: "",
         businessMobiles: [],
+        businesSocialCreditCode: "",
+        businessStartTime: "",
+        businesLegalPerson: "",
       },
       customerFormRules: {
+        // businessMobile: [
+        //   { required: true, trigger: "blur", validator: validateUserPhone },
+        // ],
         businessMobile: [
-          { required: true, trigger: "blur", validator: validateUserPhone },
+          { required: true, trigger: "blur", message: "请输入公司服务热线！" },
         ],
         businessName: [
           { required: true, trigger: "blur", message: "请输入企业名称！" },
@@ -225,6 +254,19 @@ export default {
         ],
         businessAddress: [
           { required: true, trigger: "blur", message: "请输入公司地址！" },
+        ],
+        businesSocialCreditCode: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "请输入营业执照的统一社会信用代码！",
+          },
+        ],
+        businessStartTime: [
+          { required: true, trigger: "blur", message: "请输入公司成立日期！" },
+        ],
+        businesLegalPerson: [
+          { required: true, trigger: "blur", message: "请输入公司法人姓名！" },
         ],
       },
       draftVisible: false,

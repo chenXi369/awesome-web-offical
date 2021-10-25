@@ -294,7 +294,7 @@ export default {
     // 手机和邮箱的切换按钮
     handleIconClick() {
       if (this.iconPhone === "el-icon-mobile-phone el-input__icon") {
-        if (Cookies.get("emailNum") !== "undefined") {
+        if (Cookies.get("emailNum") !== "null") {
           this.form.account = Cookies.get("emailNum");
           this.codeTypeName = "邮箱";
           this.iconPhone = "el-icon-message el-input__icon";
