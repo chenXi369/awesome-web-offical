@@ -2,7 +2,9 @@
   <article class="user-article">
     <template v-if="isToken">
       <header class="user-header">
-        <common-header></common-header>
+        <common-header
+          @openUpdatePwd="openUpdatePwd"
+        ></common-header>
       </header>
 
       <main class="user-main flex">
@@ -18,8 +20,12 @@
             <li class="left-li flex flex-between flex-middle">
               <span>邮箱：</span><span>{{ userInfo.email }}</span>
             </li>
-            <li class="left-li flex flex-between flex-middle"><span></span><span></span></li>
-            <li class="left-li flex flex-between flex-middle"><span></span><span></span></li>
+            <li class="left-li flex flex-between flex-middle">
+              <span></span><span></span>
+            </li>
+            <li class="left-li flex flex-between flex-middle">
+              <span></span><span></span>
+            </li>
           </ul>
         </section>
 
@@ -75,6 +81,7 @@
         <!-- 密码找回 -->
         <update-pwd
           :updatePwdDialog="updatePwdDialog"
+          @toBindEmail="toBindEmail"
           @hiddenDialog="hiddenDialog"
           @successUpdatePwd="successUpdatePwd"
         ></update-pwd>
@@ -107,7 +114,7 @@ export default {
       userInfo: {
         phone: "",
         email: "",
-      },
+      }
     };
   },
   components: {
@@ -118,17 +125,6 @@ export default {
     UpdatePwd,
   },
   created() {
-    if (this.$store.state.user.token === undefined) {
-      this.isToken = false;
-      this.$alert("您还没有登录，点击前往登录页", "提示", {
-        confirmButtonText: "确定",
-        callback: () => {
-          this.$router.push({
-            path: "/login",
-          });
-        },
-      });
-    }
     this.getUserInfo();
   },
   methods: {
@@ -151,6 +147,9 @@ export default {
     },
     hiddenDialog(val) {
       this.updatePwdDialog = val;
+    },
+    openUpdatePwd() {
+      this.updatePwdDialog = true;
     },
     successUpdatePwd() {
       this.updatePwdDialog = false;
@@ -201,6 +200,7 @@ export default {
     },
     // 手机号的绑定邮箱
     toBindEmail() {
+      this.updatePwdDialog = false;
       this.updatePhoneDialog = false;
       this.bindEmailDialog = true;
     },
@@ -217,9 +217,7 @@ export default {
       this.getUserInfo();
     },
     // 成功修改手机号
-    successUpdatePhone() {
-
-    }
+    successUpdatePhone() {},
   },
 };
 </script>

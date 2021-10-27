@@ -1,6 +1,6 @@
 import { login, logout, getInfo, register } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { noPwdLogin } from "@/api/login"
+import { noPwdLogin, wxLogin } from "@/api/login"
 
 const state = {
   token: getToken(),
@@ -75,7 +75,26 @@ const actions = {
       })
     })
   },
-  // get user info
+
+  // 用户第三方登录
+  wxLogin({ commit }, wxLoginInfo) {
+    const thirdInfo = { ...wxLoginInfo }
+    return new Promise((resolve, reject) => {
+      wxLogin(thirdInfo).then(response => {
+        if (response.code === 201) {
+          resolve(response)
+        }else if (response.code === 200) {
+          const { data } = response
+          commit('SET_TOKEN', data.access_token)
+          setToken(data.access_token)
+          resolve(response)
+        }
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
   // 获取用户信息
   getInfo({ commit }) {
     return new Promise((resolve, reject) => {

@@ -66,6 +66,9 @@
             <router-link to="/">
               <el-dropdown-item>首页</el-dropdown-item>
             </router-link>
+            <el-dropdown-item divided @click.native="updatePwd">
+              <span style="display: block">修改密码</span>
+            </el-dropdown-item>
             <el-dropdown-item divided @click.native="logout">
               <span style="display: block">退出登录</span>
             </el-dropdown-item>
@@ -148,6 +151,10 @@ export default {
             message: "已取消退出",
           });
         });
+    },
+    // 修改密码的弹窗
+    updatePwd() {
+      this.$emit("openUpdatePwd")
     },
     menuEnter(name) {
       if (name === "产品") {
@@ -297,5 +304,9 @@ export default {
       }
     }
   }
+}
+.el-dropdown-menu__item {
+    list-style: none;
+    line-height: 28px;
 }
 </style>

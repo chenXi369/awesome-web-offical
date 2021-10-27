@@ -126,7 +126,7 @@
               type="primary"
               style="width: 100%; margin-bottom: 30px; height: 36px"
               @click.native.prevent="handleLogin"
-              >{{ !loading ? "登 录" : "登 录 中" }}</el-button
+              >登 录</el-button
             >
           </el-form>
         </template>
@@ -178,7 +178,7 @@
                   @blur="capsTooltip = false"
                   @keyup.enter.native="handleLogin"
                 />
-                <span class="show-pwd" @click="showPwd">
+                <span class="show-pwd" v-longpress="incrementPlusTen">
                   <svg-icon
                     :icon-class="
                       passwordType === 'password' ? 'eye' : 'eye-open'
@@ -229,7 +229,7 @@
                 type="primary"
                 style="width: 100%; height: 36px"
                 @click.native.prevent="handleLogin"
-                >登 录</el-button
+                >{{ !loading ? "登 录" : "登 录 中" }}</el-button
               >
             </section>
           </el-form>
@@ -267,6 +267,10 @@
           @closeNoPwdReg="closeNoPwdReg"
         ></noPwd-reg>
       </section>
+
+      <third-login-dialog
+        :thirdLoginVisible="thirdLoginVisible"
+      ></third-login-dialog>
     </article>
   </div>
 </template>
@@ -274,8 +278,9 @@
 <script>
 import ForgetDialog from "./components/forgetPwd.vue";
 import NoPwdReg from "./components/noPwdReg.vue";
+import ThirdLoginDialog from "./components/thirdLoginDialog"
 import Cookies from "js-cookie";
-import { getCode, getCodeImg } from "@/api/login";
+import { getCode, getCodeImg, getWxToken } from "@/api/login";
 
 export default {
   data() {
@@ -358,16 +363,22 @@ export default {
       showSecond: false,
       forgetDialog: false,
       noPwdRegVisible: false,
+      wxLoginState: 0,
+      thirdLoginVisible: false
     };
   },
   components: {
     NoPwdReg,
     ForgetDialog,
+    ThirdLoginDialog
   },
   created() {
     this.windowHeight = window.innerHeight + "px";
     this.getCookie();
     this.getCodeImg();
+    if(this.$route.query.code !== undefined) {
+      this.getOpenId(this.$route.query.code) 
+    }
   },
   methods: {
     getImgCode() {
@@ -377,6 +388,20 @@ export default {
       this.forgetDialog = false;
       this.pwdForm.password = "";
       this.pwdForm.rememberMe = false;
+    },
+    getOpenId(code) {
+      getWxToken({code: code}).then((res) => {
+        let data = {
+          openid: { ...res.data }.openid
+        }
+        this.$store.dispatch("user/wxLogin", data).then((res) => {
+          if(res.code === 201) {
+            this.wxLoginState = 1;
+            this.$router.replace("/login")
+            this.thirdLoginVisible = true
+          }
+        })
+      })
     },
     // 获取loginForm的状态和数据  Cookie中有数据就替换没有就延续原来的
     getCookie() {
@@ -409,7 +434,16 @@ export default {
         this.phoneForm.uuid = res.uuid;
       });
     },
-    showPwd() {
+    // 记住密码
+    rememberPwd() {
+      this.pwdForm.rememberMe = !this.pwdForm.rememberMe;
+    },
+    // 忘记密码
+    forgetPwd() {
+      this.forgetDialog = true;
+    },
+    // 鼠标左键长按事件
+    incrementPlusTen() {
       if (this.passwordType === "password") {
         this.passwordType = "";
       } else {
@@ -418,14 +452,6 @@ export default {
       this.$nextTick(() => {
         this.$refs.password.focus();
       });
-    },
-    // 记住密码
-    rememberPwd() {
-      this.pwdForm.rememberMe = !this.pwdForm.rememberMe;
-    },
-    // 忘记密码
-    forgetPwd() {
-      this.forgetDialog = true;
     },
     handleLogin() {
       // 登录  判断登录模式
@@ -453,7 +479,7 @@ export default {
                 if (res.code === 201) {
                   this.noPwdRegVisible = true;
                 } else if (res.code === 200) {
-                  console.log(111111)
+                  console.log(111111);
                   this.$router.push({
                     path: "/user",
                   });
@@ -510,14 +536,14 @@ export default {
     // 微信第三方登录
     openWxDialog() {
       // 微信登录
-      this.$router.push({
-        path: "/thirdLogin"
-      })
+      let newTime = Date.now();
+      let stateVal = "haolong" + newTime;
+      let href = `https://open.weixin.qq.com/connect/qrconnect?appid=wx4de421c9641e8e0c&redirect_uri=http%3A%2F%2F192.168.1.254%3A9520/login&response_type=code&scope=snsapi_login&state=${stateVal}#wechat_redirect`;
+      window.location.href = href;
     },
     // qq第三方登录
     openQQDialog() {
       // QQ登录
-
     },
     hiddenDialog(val) {
       this.forgetDialog = val;
@@ -525,7 +551,7 @@ export default {
     // 获取验证码
     getCode() {
       let value = this.phoneForm.loginNum;
-      if ((value !== "" && /^1[34578]\d{9}$/.test(value))) {
+      if (value !== "" && /^1[34578]\d{9}$/.test(value)) {
         let params = {
           type: null,
         };
@@ -570,7 +596,7 @@ export default {
     },
     closeNoPwdReg() {
       this.noPwdRegVisible = false;
-      this.getCodeImg()
+      this.getCodeImg();
     },
   },
 };
@@ -651,6 +677,7 @@ $light_gray: #eee;
       }
       .active {
         color: #1890ff;
+        text-decoration: underline;
       }
     }
     .register {

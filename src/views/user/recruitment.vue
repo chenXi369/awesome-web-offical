@@ -1,62 +1,44 @@
 <template>
   <article class="recruitment">
-    <el-page-header @back="goBack" content="商家入驻" class="goBack">
-    </el-page-header>
-
     <template>
       <header class="index-header">
         <h1>商家入驻审核信息</h1>
+        <el-divider></el-divider>
       </header>
 
       <main class="index-main">
+        <!-- 审核人信息审核 -->
+        <el-form
+          :model="checkerForm"
+          :rules="checkerFormRules"
+          ref="checkerForm"
+          label-width="94px"
+          class="findPsd_form"
+          size="small"
+        >
+        </el-form>
+        <!-- 公司信息审核 -->
         <el-form
           :model="customerForm"
           :rules="customerFormRules"
           ref="customerForm"
           label-width="94px"
           class="findPsd_form"
+          size="small"
         >
           <el-form-item prop="companyEmail" label="公司邮箱">
             <el-input
               v-model.trim="customerForm.companyEmail"
-              placeholder="请输入企业的名称"
+              placeholder="请输入您的企业邮箱"
               maxlength="20"
             ></el-input>
           </el-form-item>
           <el-form-item prop="businessMobile" label="服务电话">
-            <div class="flex">
-              <el-input
-                v-model.trim="customerForm.businessMobile"
-                placeholder="请输入手机号"
-                maxlength="20"
-              ></el-input>
-              <el-button
-                icon="el-icon-plus"
-                circle
-                @click="addDomain"
-                style="margin-left: 10px"
-              ></el-button>
-            </div>
-          </el-form-item>
-          <el-form-item
-            v-for="(domain, index) in customerForm.businessMobiles"
-            :label="'服务电话' + (index + 1)"
-            :key="domain.key"
-            :rules="{
-              required: true,
-              message: '服务电话不能为空',
-              trigger: 'blur',
-            }"
-          >
-            <div class="flex">
-              <el-input v-model="domain.value"></el-input>
-              <el-button
-                icon="el-icon-delete"
-                @click.prevent="removeDomain(domain)"
-                circle
-                style="margin-left: 10px"
-              ></el-button>
-            </div>
+            <el-input
+              v-model.trim="customerForm.businessMobile"
+              placeholder="请输入手机号"
+              maxlength="20"
+            ></el-input>
           </el-form-item>
           <el-form-item prop="businessLicenseImg" label="营业执照">
             <el-upload
@@ -71,7 +53,7 @@
               <!-- <i slot="default" class="el-icon-plus"></i> -->
             </el-upload>
           </el-form-item>
-          <template v-if="businessImgState">
+          <template>
             <el-form-item prop="businesSocialCreditCode" label="信用代码">
               <el-input
                 v-model.trim="customerForm.businesSocialCreditCode"
@@ -85,8 +67,27 @@
                 type="date"
                 style="width: 100%"
                 placeholder="请输入公司注册时间"
+                format="yyyy 年 MM 月 dd 日"
+                value-format="yyyy年MM月dd日"
               >
               </el-date-picker>
+            </el-form-item>
+            <el-form-item prop="businessEndTime" label="有效日期">
+              <div class="flex">
+                <el-date-picker
+                  v-model="customerForm.businessEndTime"
+                  type="date"
+                  style="width: 100%"
+                  placeholder="请输入营业执照的过期时间"
+                  :disabled="hasEndTime"
+                  format="yyyy 年 MM 月 dd 日"
+                  value-format="yyyy年MM月dd日"
+                >
+                </el-date-picker>
+                <el-checkbox v-model="hasEndTime" style="margin-left: 20px"
+                  >长期</el-checkbox
+                >
+              </div>
             </el-form-item>
             <el-form-item prop="businesLegalPerson" label="法人姓名">
               <el-input
@@ -147,6 +148,7 @@
 
           <el-form-item>
             <template>
+              <el-button @click="goBack" style="width: 120px">返回</el-button>
               <el-button @click="onSave" style="width: 120px"
                 >存入草稿</el-button
               >
@@ -184,17 +186,29 @@ import {
 export default {
   components: { DraftList },
   data() {
-    // const validateUserPhone = (rule, value, callback) => {
-    //   let isMob =
-    //     /^((\+?86)|(\(\+86\)))?(13[012356789][0-9]{8}|15[012356789][0-9]{8}|18[02356789][0-9]{8}|147[0-9]{8}|1349[0-9]{7})$/;
-    //   if (value.length == "") {
-    //     callback(new Error("请输入服务电话"));
-    //   } else if (/^1[34578]\d{9}$/.test(value) || isMob.test(value)) {
-    //     callback();
-    //   } else {
-    //     callback(new Error("请输入正确的服务电话"));
-    //   }
-    // };
+    const validateUserPhone = (rule, value, callback) => {
+      if (value.length == "") {
+        callback(new Error("请输入服务电话"));
+      } else {
+        const isPhone = /^([0-9]{3,4}-)?[0-9]{7,8}$/; // 0571-86295197
+        const isPhone02 = /^\d{3,4}-\d{3,4}-\d{3,4}$/; // 4001-550-520
+        const isMob = /^1[0-9]{10}$/;
+        // const phone02 = /^0\d{2,3}-?\d{7,8}$/;
+        const valuePhone = value.trim();
+        if (
+          isMob.test(valuePhone) ||
+          isPhone.test(valuePhone) ||
+          isPhone02.test(valuePhone)
+        ) {
+          // 正则验证
+          callback(); // 校验通过
+          return true;
+        } else {
+          callback("请输入正确手机号或座机电话"); // 校验不通过
+          return false;
+        }
+      }
+    };
     const validateEmail = (rule, value, callback) => {
       if (value.length == "") {
         callback(new Error("请输入邮箱"));
@@ -220,6 +234,15 @@ export default {
         callback();
       }
     };
+    const validateEndTime = (rule, value, callback) => {
+      if (this.hasEndTime) {
+        callback();
+      } else {
+        if (value === "") {
+          callback(new Error("请选择营业执照过期时间！"));
+        }
+      }
+    };
     return {
       customerForm: {
         businessMobile: "",
@@ -230,17 +253,14 @@ export default {
         idNum: "",
         reviewMsg: "", // 备注
         saasCompanyId: "",
-        businessMobiles: [],
         businesSocialCreditCode: "",
         businessStartTime: "",
+        businessEndTime: "",
         businesLegalPerson: "",
       },
       customerFormRules: {
-        // businessMobile: [
-        //   { required: true, trigger: "blur", validator: validateUserPhone },
-        // ],
         businessMobile: [
-          { required: true, trigger: "blur", message: "请输入公司服务热线！" },
+          { required: true, trigger: "blur", validator: validateUserPhone },
         ],
         businessName: [
           { required: true, trigger: "blur", message: "请输入企业名称！" },
@@ -265,6 +285,9 @@ export default {
         businessStartTime: [
           { required: true, trigger: "blur", message: "请输入公司成立日期！" },
         ],
+        businessEndTime: [
+          { required: true, trigger: "blur", validator: validateEndTime },
+        ],
         businesLegalPerson: [
           { required: true, trigger: "blur", message: "请输入公司法人姓名！" },
         ],
@@ -275,6 +298,9 @@ export default {
       idNumImgState: false,
       companyInfo: {},
       imageUrl: "",
+      hasEndTime: false,
+      checkerForm: {},
+      checkerFormRules: {},
     };
   },
   created() {
@@ -318,24 +344,6 @@ export default {
         this.$router.push("/user");
       }
     },
-    // 移除别的服务电话
-    removeDomain(item) {
-      var index = this.customerForm.businessMobiles.indexOf(item);
-      if (index !== -1) {
-        this.customerForm.businessMobiles.splice(index, 1);
-      }
-    },
-    // 新增服务电话
-    addDomain() {
-      if (this.customerForm.businessMobiles.length < 2) {
-        this.customerForm.businessMobiles.push({
-          value: "",
-          key: Date.now(),
-        });
-      } else {
-        this.$message.info("服务电话数最大不超过三个");
-      }
-    },
     // 获取审核信息
     getCheckInfo() {
       getCompanyInfo().then((res) => {
@@ -357,8 +365,14 @@ export default {
         idNum: row.idNum,
         reviewMsg: row.reviewMsg, // 备注
         saasCompanyId: row.saasCompanyId,
-        businessMobiles: this.customerForm.businessMobiles,
+        businesSocialCreditCode: row.businesSocialCreditCode,
+        businessStartTime: row.businessStartTime,
+        businessEndTime: row.businessEndTime,
+        businesLegalPerson: row.businesLegalPerson,
       };
+      if(this.customerForm.businessEndTime === '') {
+        this.hasEndTime = true
+      }
       this.draftVisible = false;
     },
     closeDraft(val) {
@@ -417,11 +431,49 @@ export default {
       this.beforeAvatarUpload(file.raw);
       this.getBase64(file.raw).then((e) => {
         companyRecognition({ businessLicenseImg: e }).then((res) => {
+          console.log(JSON.parse(res.msg));
           this.companyInfo = { ...JSON.parse(res.msg).words_result };
           this.businessImgState = true;
-          this.customerForm.businessName = this.companyInfo.COMPANY[0];
-          this.customerForm.businessAddress = this.companyInfo.ADDR[0];
           this.customerForm.businessLicenseImg = JSON.stringify(file.raw);
+
+          let customerForm = {
+            businesSocialCreditCode:
+              this.customerForm.businesSocialCreditCode.trim() === ""
+                ? this.companyInfo.社会信用代码.words
+                : this.customerForm.businesSocialCreditCode,
+            businessStartTime:
+              this.customerForm.businessStartTime.trim() === ""
+                ? this.companyInfo.成立日期.words
+                : this.customerForm.businessStartTime,
+            businessEndTime:
+              this.customerForm.businessEndTime.trim() === ""
+                ? this.companyInfo.有效期.words === "无"
+                  ? ""
+                  : this.companyInfo.有效期.words
+                : this.customerForm.businessEndTime,
+            businesLegalPerson:
+              this.customerForm.businesLegalPerson.trim() === ""
+                ? this.companyInfo.法人.words
+                : this.customerForm.businesLegalPerson,
+            businessName:
+              this.customerForm.businessName.trim() === ""
+                ? this.companyInfo.单位名称.words
+                : this.customerForm.businessName,
+            businessAddress:
+              this.customerForm.businessAddress.trim() === ""
+                ? this.companyInfo.地址.words
+                : this.customerForm.businessAddress,
+          };
+          this.customerForm.businesSocialCreditCode = customerForm.businesSocialCreditCode
+          this.customerForm.businessStartTime = customerForm.businessStartTime
+          this.customerForm.businessEndTime = customerForm.businessEndTime
+          this.customerForm.businesLegalPerson = customerForm.businesLegalPerson
+          this.customerForm.businessName = customerForm.businessName
+          this.customerForm.businessAddress = customerForm.businessAddress
+
+          if(this.customerForm.businessEndTime === '' && this.companyInfo.有效期.words === "无") {
+            this.hasEndTime = true
+          }
         });
       });
     },
@@ -440,6 +492,7 @@ export default {
     // 存入草稿箱
     onSave() {
       let data = { ...this.customerForm };
+      console.log(data)
       if (data.saasCompanyId === "") {
         let { saasCompanyId, ...rest } = data;
         console.log(saasCompanyId);

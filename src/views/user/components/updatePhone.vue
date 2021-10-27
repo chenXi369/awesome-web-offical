@@ -11,8 +11,8 @@
         class="switch"
         v-model="switchValue"
         @change="switchChange"
-        active-text="邮箱修改"
-        inactive-text="手机号修改"
+        active-text="邮箱验证"
+        inactive-text="手机号验证"
       >
       </el-switch>
     </section>

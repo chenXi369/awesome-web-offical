@@ -15,6 +15,7 @@ import * as echarts from 'echarts';
 Vue.prototype.$echarts = echarts;
 
 import "./directive/echartResize"
+import "./directive/longPress"
 
 Vue.prototype.$md5 = md5;
 

@@ -1,18 +1,24 @@
 <template>
   <div class="article">
     <el-dialog
-      title="找回密码"
+      title="修改密码"
       width="600px"
       :visible.sync="updatePwdDialog"
       :close-on-click-modal="false"
       :before-close="handleClose"
     >
-      <section>
-        <el-steps :active="actived" align-center>
-          <el-step title="密码找回" icon="el-icon-edit"></el-step>
-          <el-step title="输入新密码" icon="el-icon-upload"></el-step>
-        </el-steps>
+      <section v-if="actived === 1">
+        <el-switch
+          class="switch"
+          v-model="switchValue"
+          @change="switchChange"
+          active-text="邮箱验证"
+          inactive-text="手机号验证"
+        >
+        </el-switch>
+      </section>
 
+      <section>
         <template v-if="actived === 1">
           <el-form
             :model="form"
@@ -29,13 +35,6 @@
                 maxlength="20"
               >
               </el-input>
-              <span
-                title="点我切换验证方式"
-                class="iconPhone"
-                @click="handleIconClick"
-              >
-                <i :class="iconPhone" slot="suffix"> </i>
-              </span>
             </el-form-item>
             <el-form-item class="code" prop="code" label="验证码">
               <el-input
@@ -200,7 +199,7 @@ export default {
         ],
         code: [
           { required: true, message: "请输入短信验证码", trigger: "blur" },
-        ]
+        ],
       },
       pwdFormRule: {
         userPwd: [{ required: true, trigger: "blur", validator: validatePwd }],
@@ -210,6 +209,7 @@ export default {
       },
       iconPhone: "el-icon-mobile-phone el-input__icon",
       codeTypeName: "手机号",
+      switchValue: false,
     };
   },
   created() {
@@ -225,6 +225,18 @@ export default {
         this.$refs["pwdForm"].resetFields();
       }
       this.$emit("hiddenDialog", false);
+    },
+    switchChange() {
+      if (Cookies.get("emailNum") === "null") {
+        this.switchValue = false;
+        this.$confirm("您还没有绑定邮箱，是否立即去绑定", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }).then(() => {
+          this.$emit("toBindEmail");
+        });
+      }
     },
     // 取消
     cancel() {
@@ -337,9 +349,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.article {
-  min-width: 440px;
-}
 .findPsd_form {
   width: 440px;
   margin: auto;
@@ -374,24 +383,6 @@ export default {
     color: #242424;
     width: 64%;
   }
-  .codeType .iconPhone {
-    cursor: pointer;
-    background: transparent;
-    width: 9%;
-    height: 39px;
-    display: inline-block;
-    font-size: 8px;
-    font-family: Source Han Sans CN;
-    font-weight: 500;
-    color: #5475a9;
-    border: 1px solid #9cacc9;
-    border-radius: 2px;
-    margin-left: 2%;
-  }
-  .codeType .el-input {
-    color: #242424;
-    width: 88%;
-  }
   .el-form-item__error {
     color: #ff4949;
     // font-size: 18px;
@@ -413,14 +404,6 @@ export default {
 .login-container .el-form-item {
   background: none;
 }
-.el-form-item {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #ffffff;
-  border-radius: 5px;
-  color: #454545;
-  margin-bottom: 0px;
-  margin-top: 24px;
-}
 .dialog-footer {
   text-align: center;
   .login_btn {
@@ -434,5 +417,11 @@ export default {
       opacity: 0.5;
     }
   }
+}
+.switch {
+  margin-bottom: 40px;
+  padding: 12px 20px;
+  border-radius: 4px;
+  border: 1px solid #eaeaea;
 }
 </style>

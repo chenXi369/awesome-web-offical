@@ -94,12 +94,14 @@ export default {
         code: [{ required: true, trigger: "blur", message: "请输入验证码" }],
       },
       showTime: false,
-      totalTime: 60,
+      totalTime: 120,
       loading: false,
     };
   },
   methods: {
     handleClose() {
+      this.loading = false
+      this.showTime = false
       this.$refs['bindEmailForm'].resetFields()
       this.$emit("closeBindEmail", false);
     },
@@ -133,6 +135,8 @@ export default {
       }
     },
     cancel() {
+      this.loading = false
+      this.showTime = false
       this.$refs['bindEmailForm'].resetFields()
       this.$emit("closeBindEmail", false);
     },
