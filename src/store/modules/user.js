@@ -1,6 +1,6 @@
 import { login, logout, getInfo, register } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { noPwdLogin, wxLogin } from "@/api/login"
+import { noPwdLogin, wxLogin, checkOpenid } from "@/api/login"
 
 const state = {
   token: getToken(),
@@ -35,7 +35,7 @@ const actions = {
         const { data } = response
         commit('SET_TOKEN', data.access_token)
         setToken(data.access_token)
-        resolve()
+        resolve(response)
       }).catch(error => {
         reject(error)
       })
@@ -81,6 +81,25 @@ const actions = {
     const thirdInfo = { ...wxLoginInfo }
     return new Promise((resolve, reject) => {
       wxLogin(thirdInfo).then(response => {
+        if (response.code === 201) {
+          resolve(response)
+        }else if (response.code === 200) {
+          const { data } = response
+          commit('SET_TOKEN', data.access_token)
+          setToken(data.access_token)
+          resolve(response)
+        }
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  // 检查openid
+  checkOpenid({ commit }, checkOpenidInfo) {
+    const checkInfo = { ...checkOpenidInfo }
+    return new Promise((resolve, reject) => {
+      checkOpenid(checkInfo).then(response => {
         if (response.code === 201) {
           resolve(response)
         }else if (response.code === 200) {

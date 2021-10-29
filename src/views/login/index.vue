@@ -1,6 +1,7 @@
 <template>
   <div>
-    <article class="login" :style="{ height: windowHeight }">
+    <div v-if="wxLoginState === 2"></div>
+    <article class="login" :style="{ height: windowHeight }" v-else>
       <header class="header">
         <h1 style="color: #fff; font-size: 28px">好邻邦物业管理服务平台</h1>
       </header>
@@ -269,8 +270,14 @@
       </section>
 
       <third-login-dialog
+        :openId="openId"
         :thirdLoginVisible="thirdLoginVisible"
+        @closeThirdLogin="closeThirdLogin"
       ></third-login-dialog>
+
+      <login-loading
+        :loginLoadingVisible="loginLoadingVisible"
+      ></login-loading>
     </article>
   </div>
 </template>
@@ -279,6 +286,7 @@
 import ForgetDialog from "./components/forgetPwd.vue";
 import NoPwdReg from "./components/noPwdReg.vue";
 import ThirdLoginDialog from "./components/thirdLoginDialog"
+import LoginLoading from "./components/loginLoading.vue"
 import Cookies from "js-cookie";
 import { getCode, getCodeImg, getWxToken } from "@/api/login";
 
@@ -364,21 +372,27 @@ export default {
       forgetDialog: false,
       noPwdRegVisible: false,
       wxLoginState: 0,
-      thirdLoginVisible: false
+      thirdLoginVisible: false,
+      openId: "",
+      loginLoadingVisible: false
     };
   },
   components: {
     NoPwdReg,
     ForgetDialog,
+    LoginLoading,
     ThirdLoginDialog
   },
   created() {
-    this.windowHeight = window.innerHeight + "px";
-    this.getCookie();
-    this.getCodeImg();
     if(this.$route.query.code !== undefined) {
+      this.wxLoginState = 2
       this.getOpenId(this.$route.query.code) 
     }
+    this.windowHeight = window.innerHeight + "px";
+    this.$nextTick(() => {
+      this.getCookie();
+      this.getCodeImg();
+    })
   },
   methods: {
     getImgCode() {
@@ -394,11 +408,14 @@ export default {
         let data = {
           openid: { ...res.data }.openid
         }
+        this.openId = data.openid
         this.$store.dispatch("user/wxLogin", data).then((res) => {
           if(res.code === 201) {
             this.wxLoginState = 1;
             this.$router.replace("/login")
             this.thirdLoginVisible = true
+          } else if(res.code === 200) {
+            this.$router.push("/user")
           }
         })
       })
@@ -540,6 +557,9 @@ export default {
       let stateVal = "haolong" + newTime;
       let href = `https://open.weixin.qq.com/connect/qrconnect?appid=wx4de421c9641e8e0c&redirect_uri=http%3A%2F%2F192.168.1.254%3A9520/login&response_type=code&scope=snsapi_login&state=${stateVal}#wechat_redirect`;
       window.location.href = href;
+    },
+    closeThirdLogin() {
+      this.thirdLoginVisible = false
     },
     // qq第三方登录
     openQQDialog() {

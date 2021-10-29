@@ -67,10 +67,9 @@
         </el-table-column>
         <el-table-column label="营业执照" width="150" align="center">
           <template slot-scope="scope">
-            <img
-              :src="scope.businessLicenseImg"
-              style="width: 30px; height: 30px"
-            />
+            <el-button @click="priview(scope.row)" type="text" size="small"
+              >点击查看</el-button
+            >
           </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="100" align="center">
@@ -81,6 +80,19 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <el-dialog
+        width="600px"
+        title="营业执照"
+        :visible.sync="previewArea"
+        append-to-body
+        :close-on-click-modal="false"
+        :before-close="closePreview"
+      >
+        <section style="width: 100%; text-align: center">
+          <img :src="previewImgUrl" class="preview-area" />
+        </section>
+      </el-dialog>
     </el-dialog>
   </div>
 </template>
@@ -96,6 +108,14 @@ export default {
       type: Array,
       default: () => [],
     },
+    previewArea: {
+      type: Boolean,
+      default: false
+    },
+    previewImgUrl: {
+      type: String,
+      default: ""
+    }
   },
   data() {
     return {
@@ -109,9 +129,19 @@ export default {
     handleClose() {
       this.$emit("closeDraft", false);
     },
+    priview(val) {
+      this.$emit("previewPic", val.businessLicenseImg);
+    },
+    closePreview() {
+      this.$emit("closePreviewDialog", false);
+    }
   },
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.preview-area {
+  width: 400px;
+  height: 600px;
+}
 </style>

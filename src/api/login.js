@@ -65,6 +65,15 @@ export function wxLogin(data) {
     })
 }
 
+// 检查openid绑定情况
+export function checkOpenid(data) {
+    return request({
+        url: urlPost + "/login/checkOpenid",
+        method: "post",
+        data
+    })
+}
+
 // qq登录
 export function qqLogin(data) {
     return request({

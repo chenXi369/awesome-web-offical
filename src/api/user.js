@@ -45,5 +45,23 @@ export function logout() {
     })
 }
 
+// 上传文件
+export function uploadPic(data) {
+    return request({
+        url: urlPost + '/file/upload',
+        method: 'post',
+        data
+    })
+}
+
+// 预览图片
+export function previewPic(query) {
+    return request({
+        url: urlPost + '/file/preview-img',
+        method: 'get',
+        params: query
+    })
+}
+
 
 

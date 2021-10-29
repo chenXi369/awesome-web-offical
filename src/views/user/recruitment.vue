@@ -166,9 +166,13 @@
     <section>
       <draft-list
         :draftList="draftList"
+        :previewArea="previewArea"
         :draftVisible="draftVisible"
+        :previewImgUrl="previewImgUrl"
+        @previewPic="previewPic"
         @useDraft="useDraft"
         @closeDraft="closeDraft"
+        @closePreviewDialog="closePreviewDialog"
       ></draft-list>
     </section>
   </article>
@@ -182,6 +186,10 @@ import {
   getCompanyInfo,
   companyRecognition,
 } from "@/api/check";
+import { 
+  uploadPic, 
+  previewPic
+} from "@/api/user"
 
 export default {
   components: { DraftList },
@@ -301,6 +309,9 @@ export default {
       hasEndTime: false,
       checkerForm: {},
       checkerFormRules: {},
+      buinessPic: {},
+      previewImgUrl: "",
+      previewArea: false
     };
   },
   created() {
@@ -374,6 +385,9 @@ export default {
         this.hasEndTime = true
       }
       this.draftVisible = false;
+      previewPic({filePath: row.businessLicenseImg}).then((res) => {
+        this.imageUrl = "data:image/gif;base64," + res.data
+      })
     },
     closeDraft(val) {
       this.$confirm("是否要重新编辑商家信息？", "提示", {
@@ -427,14 +441,15 @@ export default {
       });
     },
     successUploadUser(response, file) {
+      console.log(file)
+      this.buinessPic = file.raw
       this.imageUrl = URL.createObjectURL(file.raw);
       this.beforeAvatarUpload(file.raw);
       this.getBase64(file.raw).then((e) => {
         companyRecognition({ businessLicenseImg: e }).then((res) => {
-          console.log(JSON.parse(res.msg));
           this.companyInfo = { ...JSON.parse(res.msg).words_result };
           this.businessImgState = true;
-          this.customerForm.businessLicenseImg = JSON.stringify(file.raw);
+          this.customerForm.businessLicenseImg = file.name;
 
           let customerForm = {
             businesSocialCreditCode:
@@ -492,11 +507,14 @@ export default {
     // 存入草稿箱
     onSave() {
       let data = { ...this.customerForm };
-      console.log(data)
       if (data.saasCompanyId === "") {
         let { saasCompanyId, ...rest } = data;
         console.log(saasCompanyId);
-        submitCompanyInfo({ ...rest }).then(() => {
+        let newData = {...rest}
+        newData.businessLicenseImg = `${newData.businesSocialCreditCode}${newData.businessLicenseImg.slice(newData.businessLicenseImg.indexOf("."))}`
+        submitCompanyInfo(newData).then(() => {
+          // 存入草稿成功的同时上传图片
+          this.uploadPic(newData.businessLicenseImg)
           this.$message({
             type: "success",
             message: "已存入草稿箱!",
@@ -511,6 +529,26 @@ export default {
         });
       }
     },
+    // 上传图片
+    uploadPic(picPath) {
+      const formData = new FormData();
+      formData.append('fileName', picPath)
+      formData.append('file', this.buinessPic)
+
+      uploadPic(formData).then((res) => {
+        console.log(res.data)
+      })
+    },
+    // 预览图片
+    previewPic(path) {
+      this.previewArea = true
+      previewPic({filePath: path}).then((res) => {
+        this.previewImgUrl = "data:image/gif;base64," + res.data;
+      })
+    },
+    closePreviewDialog(val) {
+      this.previewArea = val
+    }
   },
 };
 </script>
