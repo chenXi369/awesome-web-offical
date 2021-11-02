@@ -117,7 +117,7 @@ export default {
     };
   },
   created() {
-    if (this.$store.state.user.token !== undefined) {
+    if (this.$store.state.user.token !== "") {
       this.isToken = false;
     }
   },

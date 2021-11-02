@@ -107,8 +107,6 @@
 
 <script>
 import { getCode, checkCode } from "@/api/login";
-import { updateUserInfo } from "@/api/user"
-import { setToken } from '@/utils/auth'
 import Cookies from "js-cookie"
 
 export default {
@@ -193,12 +191,10 @@ export default {
           let data = {
             email: this.updateEmailForm.newEmail
           }
-          updateUserInfo(data).then((res) => {
-            this.$message.success("绑定邮箱已修改成功!");
+          this.$store.dispatch("user/updateUserInfo", data).then(() => {
             Cookies.set("emailNum", this.updateEmailForm.emailNum);
-            setToken(res.data.access_token)
-            this.$store.commit('user/SET_TOKEN', res.data.access_token)
-            this.$emit("successUpdatepwd")
+            this.$emit("successUpdateEmail")
+            this.$message.success("绑定邮箱已修改成功!");
           })
         }
       })

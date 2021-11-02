@@ -2,9 +2,7 @@
   <article class="user-article">
     <template v-if="isToken">
       <header class="user-header">
-        <common-header
-          @openUpdatePwd="openUpdatePwd"
-        ></common-header>
+        <common-header @openUpdatePwd="openUpdatePwd"></common-header>
       </header>
 
       <main class="user-main flex">
@@ -21,30 +19,36 @@
               <span>邮箱：</span><span>{{ userInfo.email }}</span>
             </li>
             <li class="left-li flex flex-between flex-middle">
-              <span></span><span></span>
+              <span>部门：</span><span></span>
             </li>
             <li class="left-li flex flex-between flex-middle">
-              <span></span><span></span>
+              <span>职务：</span><span></span>
             </li>
           </ul>
+          <div>
+            <el-button
+              plain
+              type="primary"
+              @click="editUserInfo"
+              class="edit-userInfo"
+              icon="el-icon-edit"
+              size="small"
+              >完善资料</el-button
+            >
+          </div>
         </section>
 
         <section>
           <ul class="list-view flex flex-row">
-            <li class="view-left flex flex-column">
-              <el-button class="list-item" @click="updatePhone"
-                >修改手机号</el-button
-              >
-              <el-button class="list-item list-left" @click="updatePwd"
-                >修改密码</el-button
-              >
-            </li>
-            <li>
+            <li style="line-height: 360px">
               <el-button class="register-server" @click="toRegSJ"
                 >商家入驻</el-button
               >
             </li>
             <li class="view-right flex flex-column">
+              <el-button class="list-item list-top" @click="updatePhone"
+                >修改手机号</el-button
+              >
               <el-button class="list-item" @click="bindEmail"
                 >绑定邮箱</el-button
               >
@@ -76,7 +80,7 @@
         <update-email
           :updateEmailDialog="updateEmailDialog"
           @closeUpdateEmail="closeUpdateEmail"
-          @successUpdatepwd="successUpdatepwd"
+          @successUpdateEmail="successUpdateEmail"
         ></update-email>
         <!-- 密码找回 -->
         <update-pwd
@@ -101,7 +105,6 @@ import UpdatePwd from "./components/updatePwd.vue";
 import Cookies from "js-cookie";
 
 import { getInfo } from "@/api/user";
-import { removeToken } from "@/utils/auth";
 
 export default {
   data() {
@@ -114,7 +117,7 @@ export default {
       userInfo: {
         phone: "",
         email: "",
-      }
+      },
     };
   },
   components: {
@@ -153,11 +156,11 @@ export default {
     },
     successUpdatePwd() {
       this.updatePwdDialog = false;
-      removeToken();
-      this.$store.commit("user/SET_TOKEN", undefined);
-      this.$router.push({
-        name: "Login",
-      });
+      this.$store.dispatch("user/resetToken").then(() => {
+        this.$router.push({
+          name: "Login",
+        });
+      })
     },
     // 绑定邮箱
     bindEmail() {
@@ -195,7 +198,8 @@ export default {
     closeUpdateEmail(val) {
       this.updateEmailDialog = val;
     },
-    successUpdatepwd() {
+    successUpdateEmail() {
+      this.getUserInfo();
       this.updateEmailDialog = false;
     },
     // 手机号的绑定邮箱
@@ -218,6 +222,10 @@ export default {
     },
     // 成功修改手机号
     successUpdatePhone() {},
+    // 完善用户资料
+    editUserInfo() {
+      this.$router.push("/userInfo")
+    }
   },
 };
 </script>
@@ -233,8 +241,14 @@ export default {
     z-index: 2021;
   }
   .user-main {
+    max-width: 1000px;
+    min-width: 650px;
+    margin: 0 auto;
     margin-top: 160px;
-    justify-content: center;
+    justify-content: space-between;
+    .edit-userInfo {
+      width: 150px;
+    }
     .main-left {
       width: 260px;
       height: 350px;
@@ -249,7 +263,7 @@ export default {
       }
       .left-ul {
         border-top: 1px solid #eaeaea;
-        padding: 24px;
+        padding: 24px 24px 0;
         .left-li {
           height: 30px;
           line-height: 30px;
@@ -257,7 +271,7 @@ export default {
       }
     }
     .list-view {
-      margin: 80px auto 0;
+      margin: 25px 20px 0;
       .view-left {
         width: 240px;
         .list-left {
@@ -268,8 +282,12 @@ export default {
       .view-right {
         width: 240px;
         align-items: flex-end;
+        .list-top {
+          margin-right: 90px;
+          margin-bottom: 5px;
+        }
         .list-right {
-          margin-top: 10px;
+          margin-top: 5px;
           margin-right: 90px;
         }
       }

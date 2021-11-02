@@ -154,8 +154,6 @@
 <script>
 import Cookies from "js-cookie";
 import { getCode, checkCode } from "@/api/login";
-import { updateUserInfo } from "@/api/user";
-import { setToken } from '@/utils/auth'
 
 export default {
   props: {
@@ -337,15 +335,14 @@ export default {
     },
     // 提交接口
     confirm() {
-      updateUserInfo({ userName: this.newPhoneForm.newPhoneNum }).then(
-        (res) => {
-          this.$message.success("已成功修改绑定手机!");
-          Cookies.set("phoneNum", this.newPhoneForm.newPhoneNum);
-          setToken(res.data.access_token);
-          this.$store.commit("user/SET_TOKEN", res.data.access_token);
-          this.$emit("successUpdatePhone");
-        }
-      );
+      let data = {
+        userName: this.newPhoneForm.newPhoneNum
+      }
+      this.$store.dispatch("user/updateUserInfo", data).then(() => {
+        this.$message.success("已成功修改绑定手机!");
+        this.$emit("successUpdatePhone");
+        Cookies.set("phoneNum", this.newPhoneForm.newPhoneNum);
+      })
     },
     // 获取验证码
     phoneGetCode(e) {

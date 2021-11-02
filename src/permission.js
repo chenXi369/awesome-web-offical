@@ -5,7 +5,7 @@ import { getToken } from '@/utils/auth' // get token from cookie
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login', '/', "/about", "/customer", "/mine", '/register', "/user"] //路由白名单
+const whiteList = ['/login', '/', "/about", "/customer", "/mine", '/register'] //路由白名单
 
 router.beforeEach(async (to, from, next) => {
     // start progress bar

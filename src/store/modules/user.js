@@ -1,4 +1,4 @@
-import { login, logout, getInfo, register } from '@/api/user'
+import { login, logout, getInfo, register, updateUserInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { noPwdLogin, wxLogin, checkOpenid } from "@/api/login"
 
@@ -130,6 +130,25 @@ const actions = {
     })
   },
 
+  // 修改用户信息
+  updateUserInfo({ commit }, getUserInfo) {
+    const updateUserData = {...getUserInfo}
+    return new Promise((resolve, reject) => {
+      updateUserInfo(updateUserData).then(response => {
+        if (response.code === 201) {
+          resolve(response)
+        } else if (response.code === 200) {
+          const { data } = response
+          commit('SET_TOKEN', data.access_token)
+          setToken(data.access_token)
+          resolve(response)
+        }
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
   // user logout
   logout({ commit }) {
     return new Promise((resolve, reject) => {
@@ -146,7 +165,7 @@ const actions = {
   // 移出token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      commit('SET_TOKEN', '')
+      commit('SET_TOKEN', undefined)
       removeToken()
       resolve()
     })

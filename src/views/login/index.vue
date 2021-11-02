@@ -274,10 +274,6 @@
         :thirdLoginVisible="thirdLoginVisible"
         @closeThirdLogin="closeThirdLogin"
       ></third-login-dialog>
-
-      <login-loading
-        :loginLoadingVisible="loginLoadingVisible"
-      ></login-loading>
     </article>
   </div>
 </template>
@@ -286,7 +282,6 @@
 import ForgetDialog from "./components/forgetPwd.vue";
 import NoPwdReg from "./components/noPwdReg.vue";
 import ThirdLoginDialog from "./components/thirdLoginDialog"
-import LoginLoading from "./components/loginLoading.vue"
 import Cookies from "js-cookie";
 import { getCode, getCodeImg, getWxToken } from "@/api/login";
 
@@ -373,14 +368,12 @@ export default {
       noPwdRegVisible: false,
       wxLoginState: 0,
       thirdLoginVisible: false,
-      openId: "",
-      loginLoadingVisible: false
+      openId: ""
     };
   },
   components: {
     NoPwdReg,
     ForgetDialog,
-    LoginLoading,
     ThirdLoginDialog
   },
   created() {

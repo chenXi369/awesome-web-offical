@@ -4,6 +4,44 @@
   </div>
 </template>
 
+<script>
+import Cookies from "js-cookie"
+
+export default {
+  data() {
+    return {
+      beforeUnload_time: 0,
+      gap_time: 0
+    }
+  },
+  mounted() {
+    window.addEventListener("beforeunload", (e) => this.beforeunloadHandler(e));
+    window.addEventListener("unload", (e) => this.unloadHandler(e));
+  },
+  destroyed() {
+    window.removeEventListener("beforeunload", (e) =>
+      this.beforeunloadHandler(e)
+    );
+    window.removeEventListener("unload", (e) => this.unloadHandler(e));
+  },
+  methods: {
+    beforeunloadHandler() {
+      this.beforeUnload_time = new Date().getTime();
+    },
+    unloadHandler() {
+      this.gap_time = new Date().getTime() - this.beforeUnload_time;
+      //判断是窗口关闭还是刷新
+      if (this.gap_time <= 5) {
+        //如果是登录状态，关闭窗口前，移除用户
+        if (Cookies.get("Admin-Token") !== undefined) {
+          this.$store.dispatch('user/resetToken')
+        }
+      }
+    },
+  },
+};
+</script>
+
 <style lang="scss">
 body {
   margin: 0px;

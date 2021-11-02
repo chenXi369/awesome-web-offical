@@ -8,7 +8,7 @@
 
       <main class="index-main">
         <!-- 审核人信息审核 -->
-        <!-- <el-form
+        <el-form
           :model="checkerForm"
           :rules="checkerFormRules"
           ref="checkerForm"
@@ -16,7 +16,49 @@
           class="findPsd_form"
           size="small"
         >
-        </el-form> -->
+          <!-- <el-form-item prop="companyEmail" label="个人邮箱">
+            <el-input
+              v-model.trim="customerForm.companyEmail"
+              placeholder="请输入您的企业邮箱"
+              maxlength="20"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="companyEmail" label="手机号">
+            <el-input
+              v-model.trim="customerForm.companyEmail"
+              placeholder="请输入您的企业邮箱"
+              maxlength="20"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="companyEmail" label="身份证号">
+            <el-input
+              v-model.trim="customerForm.companyEmail"
+              placeholder="请输入您的企业邮箱"
+              maxlength="20"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="companyEmail" label="姓名">
+            <el-input
+              v-model.trim="customerForm.companyEmail"
+              placeholder="请输入您的企业邮箱"
+              maxlength="20"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="companyEmail" label="部门">
+            <el-input
+              v-model.trim="customerForm.companyEmail"
+              placeholder="请输入您的企业邮箱"
+              maxlength="20"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="companyEmail" label="职务">
+            <el-input
+              v-model.trim="customerForm.companyEmail"
+              placeholder="请输入您的企业邮箱"
+              maxlength="20"
+            ></el-input>
+          </el-form-item> -->
+        </el-form>
         <!-- 公司信息审核 -->
         <el-form
           :model="customerForm"
@@ -31,6 +73,7 @@
               v-model.trim="customerForm.companyEmail"
               placeholder="请输入您的企业邮箱"
               maxlength="20"
+              @input="changeCustomerForm(1)"
             ></el-input>
           </el-form-item>
           <el-form-item prop="businessMobile" label="服务电话">
@@ -38,6 +81,7 @@
               v-model.trim="customerForm.businessMobile"
               placeholder="请输入手机号"
               maxlength="20"
+              @input="changeCustomerForm(2)"
             ></el-input>
           </el-form-item>
           <el-form-item prop="businessLicenseImg" label="营业执照">
@@ -59,6 +103,7 @@
                 v-model.trim="customerForm.businesSocialCreditCode"
                 placeholder="请输入营业执照的信用代码"
                 maxlength="40"
+                @input="changeCustomerForm(3)"
               ></el-input>
             </el-form-item>
             <el-form-item prop="businessStartTime" label="注册日期">
@@ -69,6 +114,7 @@
                 placeholder="请输入公司注册时间"
                 format="yyyy 年 MM 月 dd 日"
                 value-format="yyyy年MM月dd日"
+                @input="changeCustomerForm(4)"
               >
               </el-date-picker>
             </el-form-item>
@@ -82,6 +128,7 @@
                   :disabled="hasEndTime"
                   format="yyyy 年 MM 月 dd 日"
                   value-format="yyyy年MM月dd日"
+                  @input="changeCustomerForm(5)"
                 >
                 </el-date-picker>
                 <el-checkbox v-model="hasEndTime" style="margin-left: 20px"
@@ -94,12 +141,14 @@
                 v-model.trim="customerForm.businesLegalPerson"
                 placeholder="请输入法定代表人的姓名"
                 maxlength="40"
+                @input="changeCustomerForm(6)"
               ></el-input>
             </el-form-item>
             <el-form-item prop="businessName" label="企业名称">
               <el-input
                 v-model.trim="customerForm.businessName"
                 placeholder="请输入企业的名称"
+                @input="changeCustomerForm(7)"
                 maxlength="20"
               ></el-input>
             </el-form-item>
@@ -108,6 +157,7 @@
                 v-model.trim="customerForm.businessAddress"
                 placeholder="请输入公司所在地址"
                 maxlength="40"
+                @input="changeCustomerForm(8)"
               ></el-input>
             </el-form-item>
           </template>
@@ -143,6 +193,7 @@
             <el-input
               v-model.trim="customerForm.reviewMsg"
               type="textarea"
+              @input="changeCustomerForm(9)"
             ></el-input>
           </el-form-item>
 
@@ -307,6 +358,7 @@ export default {
       buinessPic: {},
       previewImgUrl: "",
       previewArea: false,
+      changeState: false
     };
   },
   created() {
@@ -326,12 +378,7 @@ export default {
   },
   methods: {
     goBack() {
-      let backState = Object.keys(this.customerForm)
-        .map((key) => this.customerForm[key])
-        .find((item) => {
-          return item !== "";
-        });
-      if (backState !== undefined) {
+      if (this.changeState) {
         this.$confirm("您还有正在编辑的信息，是否继续返回？", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
@@ -418,6 +465,7 @@ export default {
           data.reviewStatus = 1;
           submitCompanyInfo(data).then(() => {
             this.$message.success("商户信息已成功提交！")
+            this.changeState = false
           });
         }
       });
@@ -526,6 +574,7 @@ export default {
             type: "success",
             message: "已存入草稿箱!",
           });
+          this.changeState = false
         });
       } else {
         let newObj = data;
@@ -539,6 +588,7 @@ export default {
             type: "success",
             message: "该草稿信息已成功修改!",
           });
+          this.changeState = false
         });
       }
     },
@@ -562,6 +612,12 @@ export default {
     closePreviewDialog(val) {
       this.previewArea = val;
     },
+    changeCustomerForm(e) {
+      console.log(e)
+      if(!this.changeState) {
+        this.changeState = true
+      }
+    }
   },
 };
 </script>
