@@ -8,7 +8,7 @@
 
       <main class="index-main">
         <!-- 审核人信息审核 -->
-        <el-form
+        <!-- <el-form
           :model="checkerForm"
           :rules="checkerFormRules"
           ref="checkerForm"
@@ -16,12 +16,12 @@
           class="findPsd_form"
           size="small"
         >
-        </el-form>
+        </el-form> -->
         <!-- 公司信息审核 -->
         <el-form
           :model="customerForm"
           :rules="customerFormRules"
-          ref="customerForm"
+          ref="checkForm"
           label-width="94px"
           class="findPsd_form"
           size="small"
@@ -155,8 +155,8 @@
               <!-- <el-button @click="onSave" style="width: 120px">修改草稿</el-button> -->
             </template>
 
-            <el-button type="primary" @click="onSubmit" style="width: 120px"
-              >提交</el-button
+            <el-button type="primary" @click="submitCheck" style="width: 120px"
+              >提交审核</el-button
             >
           </el-form-item>
         </el-form>
@@ -186,35 +186,28 @@ import {
   getCompanyInfo,
   companyRecognition,
 } from "@/api/check";
-import { 
-  uploadPic, 
-  previewPic
-} from "@/api/user"
+import { uploadPic, previewPic } from "@/api/user";
 
 export default {
   components: { DraftList },
   data() {
     const validateUserPhone = (rule, value, callback) => {
-      if (value.length == "") {
+      const isPhone = /^([0-9]{3,4}-)?[0-9]{7,8}$/; // 0571-86295197
+      const isPhone02 = /^\d{3,4}-\d{3,4}-\d{3,4}$/; // 4001-550-520
+      const isMob = /^1[0-9]{10}$/;
+      // const phone02 = /^0\d{2,3}-?\d{7,8}$/;
+      const valuePhone = value.trim();
+      if (valuePhone.length == "") {
         callback(new Error("请输入服务电话"));
+      } else if (
+        isMob.test(valuePhone) ||
+        isPhone.test(valuePhone) ||
+        isPhone02.test(valuePhone)
+      ) {
+        // 正则验证
+        callback(); // 校验通过
       } else {
-        const isPhone = /^([0-9]{3,4}-)?[0-9]{7,8}$/; // 0571-86295197
-        const isPhone02 = /^\d{3,4}-\d{3,4}-\d{3,4}$/; // 4001-550-520
-        const isMob = /^1[0-9]{10}$/;
-        // const phone02 = /^0\d{2,3}-?\d{7,8}$/;
-        const valuePhone = value.trim();
-        if (
-          isMob.test(valuePhone) ||
-          isPhone.test(valuePhone) ||
-          isPhone02.test(valuePhone)
-        ) {
-          // 正则验证
-          callback(); // 校验通过
-          return true;
-        } else {
-          callback("请输入正确手机号或座机电话"); // 校验不通过
-          return false;
-        }
+        callback("请输入正确手机号或座机电话"); // 校验不通过
       }
     };
     const validateEmail = (rule, value, callback) => {
@@ -248,6 +241,8 @@ export default {
       } else {
         if (value === "") {
           callback(new Error("请选择营业执照过期时间！"));
+        } else {
+          callback();
         }
       }
     };
@@ -311,7 +306,7 @@ export default {
       checkerFormRules: {},
       buinessPic: {},
       previewImgUrl: "",
-      previewArea: false
+      previewArea: false,
     };
   },
   created() {
@@ -381,13 +376,14 @@ export default {
         businessEndTime: row.businessEndTime,
         businesLegalPerson: row.businesLegalPerson,
       };
-      if(this.customerForm.businessEndTime === '') {
-        this.hasEndTime = true
+      if (this.customerForm.businessEndTime === "") {
+        this.hasEndTime = true;
       }
       this.draftVisible = false;
-      previewPic({filePath: row.businessLicenseImg}).then((res) => {
-        this.imageUrl = "data:image/gif;base64," + res.data
-      })
+      previewPic({ filePath: row.businessLicenseImg }).then((res) => {
+        this.imageUrl = "data:image/gif;base64," + res.data;
+        this.businessImgState = true;
+      });
     },
     closeDraft(val) {
       this.$confirm("是否要重新编辑商家信息？", "提示", {
@@ -415,11 +411,13 @@ export default {
       }
       return isJPG && isPNG && isLt2M;
     },
-    onSubmit() {
-      this.$refs["customerForm"].validate((valid) => {
+    submitCheck() {
+      this.$refs["checkForm"].validate((valid) => {
         if (valid) {
-          submitCompanyInfo(this.customerForm).then((res) => {
-            console.log(res.data);
+          let data = { ...this.customerForm };
+          data.reviewStatus = 1;
+          submitCompanyInfo(data).then(() => {
+            this.$message.success("商户信息已成功提交！")
           });
         }
       });
@@ -441,8 +439,8 @@ export default {
       });
     },
     successUploadUser(response, file) {
-      console.log(file)
-      this.buinessPic = file.raw
+      console.log(file);
+      this.buinessPic = file.raw;
       this.imageUrl = URL.createObjectURL(file.raw);
       this.beforeAvatarUpload(file.raw);
       this.getBase64(file.raw).then((e) => {
@@ -479,15 +477,20 @@ export default {
                 ? this.companyInfo.地址.words
                 : this.customerForm.businessAddress,
           };
-          this.customerForm.businesSocialCreditCode = customerForm.businesSocialCreditCode
-          this.customerForm.businessStartTime = customerForm.businessStartTime
-          this.customerForm.businessEndTime = customerForm.businessEndTime
-          this.customerForm.businesLegalPerson = customerForm.businesLegalPerson
-          this.customerForm.businessName = customerForm.businessName
-          this.customerForm.businessAddress = customerForm.businessAddress
+          this.customerForm.businesSocialCreditCode =
+            customerForm.businesSocialCreditCode;
+          this.customerForm.businessStartTime = customerForm.businessStartTime;
+          this.customerForm.businessEndTime = customerForm.businessEndTime;
+          this.customerForm.businesLegalPerson =
+            customerForm.businesLegalPerson;
+          this.customerForm.businessName = customerForm.businessName;
+          this.customerForm.businessAddress = customerForm.businessAddress;
 
-          if(this.customerForm.businessEndTime === '' && this.companyInfo.有效期.words === "无") {
-            this.hasEndTime = true
+          if (
+            this.customerForm.businessEndTime === "" &&
+            this.companyInfo.有效期.words === "无"
+          ) {
+            this.hasEndTime = true;
           }
         });
       });
@@ -510,18 +513,28 @@ export default {
       if (data.saasCompanyId === "") {
         let { saasCompanyId, ...rest } = data;
         console.log(saasCompanyId);
-        let newData = {...rest}
-        newData.businessLicenseImg = `${newData.businesSocialCreditCode}${newData.businessLicenseImg.slice(newData.businessLicenseImg.indexOf("."))}`
+        let newData = { ...rest };
+        newData.businessLicenseImg = `${
+          newData.businesSocialCreditCode
+        }${newData.businessLicenseImg.slice(
+          newData.businessLicenseImg.indexOf(".")
+        )}`;
         submitCompanyInfo(newData).then(() => {
           // 存入草稿成功的同时上传图片
-          this.uploadPic(newData.businessLicenseImg)
+          this.uploadPic(newData.businessLicenseImg);
           this.$message({
             type: "success",
             message: "已存入草稿箱!",
           });
         });
       } else {
-        updateCompanyInfo(data).then(() => {
+        let newObj = data;
+        newObj.businessLicenseImg = `${
+          newObj.businesSocialCreditCode
+        }${newObj.businessLicenseImg.slice(
+          newObj.businessLicenseImg.indexOf(".")
+        )}`;
+        updateCompanyInfo(newObj).then(() => {
           this.$message({
             type: "success",
             message: "该草稿信息已成功修改!",
@@ -532,23 +545,23 @@ export default {
     // 上传图片
     uploadPic(picPath) {
       const formData = new FormData();
-      formData.append('fileName', picPath)
-      formData.append('file', this.buinessPic)
+      formData.append("fileName", picPath);
+      formData.append("file", this.buinessPic);
 
       uploadPic(formData).then((res) => {
-        console.log(res.data)
-      })
+        console.log(res.data);
+      });
     },
     // 预览图片
     previewPic(path) {
-      this.previewArea = true
-      previewPic({filePath: path}).then((res) => {
+      this.previewArea = true;
+      previewPic({ filePath: path }).then((res) => {
         this.previewImgUrl = "data:image/gif;base64," + res.data;
-      })
+      });
     },
     closePreviewDialog(val) {
-      this.previewArea = val
-    }
+      this.previewArea = val;
+    },
   },
 };
 </script>
