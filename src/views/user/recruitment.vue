@@ -13,51 +13,213 @@
           :rules="checkerFormRules"
           ref="checkerForm"
           label-width="94px"
-          class="findPsd_form"
+          class="findPsd_form1"
           size="small"
         >
-          <!-- <el-form-item prop="companyEmail" label="个人邮箱">
+          <el-form-item prop="telephone" label="手机号">
             <el-input
-              v-model.trim="customerForm.companyEmail"
-              placeholder="请输入您的企业邮箱"
+              v-model.trim="checkerForm.telephone"
+              placeholder="请输入您的手机号"
+              maxlength="20"
+              :disabled="true"
+            >
+              <el-button
+                slot="suffix"
+                size="small"
+                type="text"
+                @click="changePhone"
+                >更换手机号
+              </el-button>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="email" label="个人邮箱">
+            <el-input
+              v-model.trim="checkerForm.email"
+              maxlength="20"
+              :disabled="true"
+            >
+              <el-button
+                slot="suffix"
+                size="small"
+                type="text"
+                @click="changeEmail(checkerForm.email)"
+                >{{ checkerForm.email === "" ? "绑定邮箱" : "更改邮箱" }}
+              </el-button>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="idCardFrontImg" label="身份证(正)">
+            <div class="flex flex-center">
+              <template>
+                <div
+                  v-if="idNumFrontImg"
+                  class="idCardImg"
+                  @mouseenter="mouseInFrontImg"
+                  @mouseleave="mouseOutFrontImg"
+                >
+                  <div
+                    v-if="frontImgVisible"
+                    class="pictrue-overlay"
+                    @click="amplifyIdNum(0)"
+                  >
+                    <i
+                      class="el-icon-zoom-in"
+                      style="color: #fff; font-size: 32px"
+                    ></i>
+                  </div>
+                  <img
+                    :src="idNumFrontImg"
+                    class="avatar"
+                    style="margin-right: 10px"
+                  />
+                </div>
+              </template>
+
+              <el-upload
+                action="#"
+                class="avatar-uploader"
+                :auto-upload="true"
+                :show-file-list="false"
+                :before-upload="beforeuploadIdNum"
+                :on-success="successUploadIdNumFront"
+              >
+                <el-button
+                  v-if="idNumFrontImg !== ''"
+                  size="small"
+                  type="text"
+                  style="width: 120px"
+                  >重新上传</el-button
+                >
+                <i
+                  v-else
+                  slot="default"
+                  class="el-icon-plus avatar-uploader-icon"
+                ></i>
+              </el-upload>
+            </div>
+          </el-form-item>
+          <el-form-item prop="idCardBackImg" label="身份证(反)">
+            <div class="flex flex-center">
+              <template>
+                <div
+                  v-if="idNumBackImg"
+                  class="idCardImg"
+                  @mouseenter="mouseInBackImg"
+                  @mouseleave="mouseOutBackImg"
+                >
+                  <div
+                    v-if="backImgVisible"
+                    class="pictrue-overlay"
+                    @click="amplifyIdNum(1)"
+                  >
+                    <i
+                      class="el-icon-zoom-in"
+                      style="color: #fff; font-size: 32px"
+                    ></i>
+                  </div>
+                  <img
+                    :src="idNumBackImg"
+                    class="avatar"
+                    style="margin-right: 10px"
+                  />
+                </div>
+              </template>
+
+              <el-upload
+                action="#"
+                class="avatar-uploader"
+                :auto-upload="true"
+                :show-file-list="false"
+                :before-upload="beforeuploadIdNum"
+                :on-success="successUploadIdNumBack"
+              >
+                <el-button
+                  v-if="idNumBackImg !== ''"
+                  size="small"
+                  type="text"
+                  style="width: 120px"
+                  >重新上传</el-button
+                >
+                <i
+                  v-else
+                  slot="default"
+                  class="el-icon-plus avatar-uploader-icon"
+                ></i>
+              </el-upload>
+            </div>
+          </el-form-item>
+          <el-form-item prop="userName" label="姓名">
+            <el-input
+              v-model.trim="checkerForm.userName"
+              placeholder="请输入您的姓名"
               maxlength="20"
             ></el-input>
           </el-form-item>
-          <el-form-item prop="companyEmail" label="手机号">
+          <el-form-item prop="idCardAddr" label="地址">
             <el-input
-              v-model.trim="customerForm.companyEmail"
-              placeholder="请输入您的企业邮箱"
+              v-model.trim="checkerForm.idCardAddr"
+              placeholder="请输入您的证件地址"
               maxlength="20"
             ></el-input>
           </el-form-item>
-          <el-form-item prop="companyEmail" label="身份证号">
+          <el-form-item prop="idCardNo" label="身份证号">
             <el-input
-              v-model.trim="customerForm.companyEmail"
-              placeholder="请输入您的企业邮箱"
+              v-model.trim="checkerForm.idCardNo"
+              placeholder="请输入您的身份证件号码"
+              maxlength="30"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="idCardBirthday" label="出生日期">
+            <el-date-picker
+              v-model="checkerForm.idCardBirthday"
+              type="date"
+              placeholder="选择有效开始日期"
+              style="width: 100%"
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item prop="idCardStartTime" label="签发日期">
+            <el-date-picker
+              v-model="checkerForm.idCardStartTime"
+              type="date"
+              placeholder="选择有效开始日期"
+              style="width: 100%"
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item prop="idCardEndTime" label="失效日期">
+            <el-date-picker
+              v-model="checkerForm.idCardEndTime"
+              type="date"
+              placeholder="选择有效结束日期"
+              style="width: 100%"
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item prop="department" label="部门">
+            <el-input
+              v-model.trim="checkerForm.department"
+              placeholder="请输入您的部门名称"
               maxlength="20"
             ></el-input>
           </el-form-item>
-          <el-form-item prop="companyEmail" label="姓名">
-            <el-input
-              v-model.trim="customerForm.companyEmail"
-              placeholder="请输入您的企业邮箱"
-              maxlength="20"
-            ></el-input>
-          </el-form-item>
-          <el-form-item prop="companyEmail" label="部门">
-            <el-input
-              v-model.trim="customerForm.companyEmail"
-              placeholder="请输入您的企业邮箱"
-              maxlength="20"
-            ></el-input>
-          </el-form-item>
-          <el-form-item prop="companyEmail" label="职务">
-            <el-input
-              v-model.trim="customerForm.companyEmail"
-              placeholder="请输入您的企业邮箱"
-              maxlength="20"
-            ></el-input>
-          </el-form-item> -->
+          <section class="idCardAreaChart" v-show="idCardVisible">
+            <div class="close-pic">
+              <img
+                width="100%"
+                :src="idNumFrontImg"
+                alt=""
+                v-if="amplifyIdNumState === 0"
+              />
+              <img width="100%" :src="idNumBackImg" alt="" v-else />
+              <el-button
+                @click="idCardVisible = false"
+                plain
+                type="primary"
+                class="close-btn"
+                >关 闭</el-button
+              >
+            </div>
+          </section>
         </el-form>
         <!-- 公司信息审核 -->
         <el-form
@@ -65,7 +227,7 @@
           :rules="customerFormRules"
           ref="checkForm"
           label-width="94px"
-          class="findPsd_form"
+          class="findPsd_form2"
           size="small"
         >
           <el-form-item prop="companyEmail" label="公司邮箱">
@@ -85,17 +247,47 @@
             ></el-input>
           </el-form-item>
           <el-form-item prop="businessLicenseImg" label="营业执照">
-            <el-upload
-              action="#"
-              class="avatar-uploader"
-              :auto-upload="true"
-              :show-file-list="false"
-              :on-success="successUploadUser"
-            >
-              <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-              <!-- <i slot="default" class="el-icon-plus"></i> -->
-            </el-upload>
+            <div class="flex flex-center">
+              <div
+                v-if="imageUrl"
+                class="businessLicenseImg"
+                @mouseenter="mouseInCheckPic"
+                @mouseleave="mouseOutCheckPic"
+              >
+                <div
+                  v-if="overlayVisible"
+                  class="pictrue-overlay"
+                  @click="dialogVisible = true"
+                >
+                  <i
+                    class="el-icon-zoom-in"
+                    style="color: #fff; font-size: 32px"
+                  ></i>
+                </div>
+                <img :src="imageUrl" class="avatar" />
+              </div>
+
+              <el-upload
+                action="#"
+                class="avatar-uploader"
+                :auto-upload="true"
+                :show-file-list="false"
+                :on-success="successUploadUser"
+              >
+                <el-button
+                  v-if="imageUrl !== ''"
+                  size="small"
+                  type="text"
+                  style="width: 120px"
+                  >重新上传</el-button
+                >
+                <i
+                  v-else
+                  slot="default"
+                  class="el-icon-plus avatar-uploader-icon"
+                ></i>
+              </el-upload>
+            </div>
           </el-form-item>
           <template>
             <el-form-item prop="businesSocialCreditCode" label="信用代码">
@@ -161,34 +353,6 @@
               ></el-input>
             </el-form-item>
           </template>
-
-          <!-- <el-form-item prop="idNum" label="法人身份证">
-            <el-upload
-              action="#"
-              class="avatar-uploader"
-              :auto-upload="true"
-              :show-file-list="false"
-              :before-upload="beforeuploadIdNum"
-              :on-success="successUploadIdNum"
-            > 
-              <img v-if="idNumFileList[0] !== undefined" :src="idNumFileList[0]" class="avatar" />
-              <img v-if="idNumFileList[1] !== undefined" :src="idNumFileList[1]" class="avatar" />
-              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-            </el-upload>
-            
-            <el-upload
-              action="#"
-              list-type="picture-card"
-              :auto-upload="true"
-              :limit="2"
-              :before-upload="beforeuploadIdNum"
-              :file-list="idNumFileList"
-              :on-remove="idNumRemove"
-              :on-success="successUploadIdNum"
-            >
-              <i slot="default" class="el-icon-plus"></i>
-            </el-upload>
-          </el-form-item> -->
           <el-form-item prop="reviewMsg" label="备 注">
             <el-input
               v-model.trim="customerForm.reviewMsg"
@@ -210,6 +374,19 @@
               >提交审核</el-button
             >
           </el-form-item>
+
+          <section class="areaChart" v-show="dialogVisible">
+            <div class="close-pic">
+              <img width="100%" :src="imageUrl" alt="" />
+              <el-button
+                @click="dialogVisible = false"
+                plain
+                type="primary"
+                class="close-btn"
+                >关 闭</el-button
+              >
+            </div>
+          </section>
         </el-form>
       </main>
     </template>
@@ -230,12 +407,14 @@
 </template>
 
 <script>
+import Cookies from "js-cookie";
 import DraftList from "./components/draftList.vue";
 import {
   submitCompanyInfo,
   updateCompanyInfo,
   getCompanyInfo,
   companyRecognition,
+  idReCognition,
 } from "@/api/check";
 import { uploadPic, previewPic } from "@/api/user";
 
@@ -272,13 +451,6 @@ export default {
         callback(new Error("请输入正确的邮箱"));
       }
     };
-    // const validateIdNum = (rule, value, callback) => {
-    //   if (!this.idNumImgState) {
-    //     callback(new Error("请上传法人身份证正反面照片"));
-    //   } else {
-    //     callback();
-    //   }
-    // };
     const validateBusyLicense = (rule, value, callback) => {
       if (!this.businessImgState) {
         callback(new Error("请上传公司营业执照照片"));
@@ -295,6 +467,20 @@ export default {
         } else {
           callback();
         }
+      }
+    };
+    const validateIdCardFrontImg = (rule, value, callback) => {
+      if (!this.IdCardFrontImgState) {
+        callback(new Error("请上传用户身份证正面照片！"));
+      } else {
+        callback();
+      }
+    };
+    const validateIdCardBackImg = (rule, value, callback) => {
+      if (!this.IdCardBackImgState) {
+        callback(new Error("请上传用户身份证反面照片！"));
+      } else {
+        callback();
       }
     };
     return {
@@ -322,7 +508,6 @@ export default {
         companyEmail: [
           { required: true, trigger: "blur", validator: validateEmail },
         ],
-        // idNum: [{ required: true, trigger: "blur", validator: validateIdNum }],
         businessLicenseImg: [
           { required: true, trigger: "blur", validator: validateBusyLicense },
         ],
@@ -353,19 +538,101 @@ export default {
       companyInfo: {},
       imageUrl: "",
       hasEndTime: false,
-      checkerForm: {},
-      checkerFormRules: {},
+      checkerForm: {
+        email: "",
+        telephone: "",
+        idCardFrontImg: "",
+        idCardBackImg: "",
+        userName: "",
+        idCardAddr: "",
+        idCardBirthday: "",
+        idCardStartTime: "",
+        idCardEndTime: "",
+        idCardNo: "",
+        department: "",
+      },
+      checkerFormRules: {
+        idCardFrontImg: [
+          {
+            required: true,
+            trigger: "blur",
+            validator: validateIdCardFrontImg,
+          },
+        ],
+        idCardBackImg: [
+          { required: true, trigger: "blur", validator: validateIdCardBackImg },
+        ],
+        userName: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "请输入用户身份证件上的姓名！",
+          },
+        ],
+        idCardNo: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "请输入用户身份证件的证件号！",
+          },
+        ],
+        idCardAddr: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "请输入用户身份证件上的地址！",
+          },
+        ],
+        idCardBirthday: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "请选择用户身份证件上的出生日期！",
+          },
+        ],
+        idCardStartTime: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "请选择用户身份证件上的有效开始日期！",
+          },
+        ],
+        idCardEndTime: [
+          {
+            required: true,
+            trigger: "blur",
+            message: "请输入用户身份证件上的有效结束日期！",
+          },
+        ],
+      },
       buinessPic: {},
       previewImgUrl: "",
       previewArea: false,
-      changeState: false
+      changeState: false,
+
+      idNumFileList: [],
+      idNumFrontImg: "",
+      idNumBackImg: "",
+      dialogVisible: false,
+      dialogImageUrl: "",
+      overlayVisible: false,
+      frontImgVisible: false,
+      backImgVisible: false,
+      idCardVisible: false,
+      IdCardBackImgState: false,
+      IdCardFrontImgState: false,
+      amplifyIdNumState: 0,
     };
   },
   created() {
     // 获取审核信息
     this.getCheckInfo();
+    this.checkerForm.email =
+      Cookies.get("emailNum") === "null" ? "" : Cookies.get("emailNum");
+    this.checkerForm.telephone = Cookies.get("phoneNum");
   },
   mounted() {
+    console.log(this.checkerForm);
     if (window.history && window.history.pushState) {
       // 向历史记录中插入了当前页
       history.pushState(null, null, document.URL);
@@ -445,6 +712,26 @@ export default {
           this.draftVisible = !val;
         });
     },
+    // 鼠标移入事件
+    mouseInCheckPic() {
+      this.overlayVisible = true;
+    },
+    mouseInFrontImg() {
+      this.frontImgVisible = true;
+    },
+    mouseInBackImg() {
+      this.backImgVisible = true;
+    },
+    // 鼠标移出事件
+    mouseOutCheckPic() {
+      this.overlayVisible = false;
+    },
+    mouseOutFrontImg() {
+      this.frontImgVisible = false;
+    },
+    mouseOutBackImg() {
+      this.backImgVisible = false;
+    },
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg";
       const isPNG = file.type === "image/png";
@@ -459,16 +746,25 @@ export default {
       return isJPG && isPNG && isLt2M;
     },
     submitCheck() {
-      this.$refs["checkForm"].validate((valid) => {
+      // this.$refs["checkForm"].validate((valid) => {
+      //   if (valid) {
+      //     let data = { ...this.customerForm };
+      //     data.reviewStatus = 1;
+      //     submitCompanyInfo(data).then(() => {
+      //       this.$message.success("商户信息已成功提交！");
+      //       this.changeState = false;
+      //     });
+      //   }
+      // });
+      this.$refs["checkerForm"].validate((valid) => {
         if (valid) {
-          let data = { ...this.customerForm };
-          data.reviewStatus = 1;
-          submitCompanyInfo(data).then(() => {
-            this.$message.success("商户信息已成功提交！")
-            this.changeState = false
-          });
+          console.log(valid);
         }
       });
+    },
+    amplifyIdNum(i) {
+      this.amplifyIdNumState = i;
+      this.idCardVisible = true;
     },
     getBase64(file) {
       return new Promise(function (resolve, reject) {
@@ -544,17 +840,56 @@ export default {
       });
     },
     // 上传身份证图片
-    // beforeuploadIdNum(file) {
-    //   this.beforeAvatarUpload(file);
-    //   this.getBase64(file).then((e) => {
-    //     idReCognition({ idCardFrontImg: e }).then(() => {
-    //       this.dialogIdNumUrl = e;
-    //     });
-    //   });
-    // },
-    // successUploadIdNum(response, file) {
-    //   this.idNumFileList.push(URL.createObjectURL(file.raw));
-    // },
+    beforeuploadIdNum(file) {
+      this.beforeAvatarUpload(file);
+    },
+    successUploadIdNumFront(response, file) {
+      this.idNumFrontImg = URL.createObjectURL(file.raw);
+      this.getBase64(file.raw).then((e) => {
+        idReCognition({ idCardFrontImg: e }).then((res) => {
+          if (JSON.parse(res.msg).image_status === "normal") {
+            this.IdCardFrontImgState = true;
+            let idCarFrontInfo = JSON.parse(res.msg).words_result;
+            this.checkerForm.userName = idCarFrontInfo.姓名.words;
+            this.checkerForm.idCardBirthday = this.changeDate(
+              idCarFrontInfo.出生.words
+            );
+            this.checkerForm.idCardNo = idCarFrontInfo.公民身份号码.words;
+            this.checkerForm.idCardAddr = idCarFrontInfo.住址.words;
+          } else {
+            this.IdCardFrontImgState = false;
+            return;
+          }
+        });
+      });
+    },
+    successUploadIdNumBack(response, file) {
+      this.idNumBackImg = URL.createObjectURL(file.raw);
+      this.getBase64(file.raw).then((e) => {
+        idReCognition({ idCardFrontImg: e }).then((res) => {
+          console.log(JSON.parse(res.msg));
+          if (JSON.parse(res.msg).image_status === "reversed_side") {
+            this.IdCardBackImgState = true;
+            let idCarBackInfo = JSON.parse(res.msg).words_result;
+            this.checkerForm.idCardStartTime = this.changeDate(
+              idCarBackInfo.签发日期.words
+            );
+            this.checkerForm.idCardEndTime = this.changeDate(
+              idCarBackInfo.失效日期.words
+            );
+          } else {
+            this.IdCardBackImgState = false;
+            return;
+          }
+        });
+      });
+    },
+    // 日期格式转换
+    changeDate(val) {
+      let newVal = `${val.slice(0, 4)}-${val.slice(4, 6)}-${val.slice(6, 8)}`;
+      console.log(newVal);
+      return newVal;
+    },
     // 存入草稿箱
     onSave() {
       let data = { ...this.customerForm };
@@ -574,7 +909,7 @@ export default {
             type: "success",
             message: "已存入草稿箱!",
           });
-          this.changeState = false
+          this.changeState = false;
         });
       } else {
         let newObj = data;
@@ -588,7 +923,7 @@ export default {
             type: "success",
             message: "该草稿信息已成功修改!",
           });
-          this.changeState = false
+          this.changeState = false;
         });
       }
     },
@@ -613,11 +948,15 @@ export default {
       this.previewArea = val;
     },
     changeCustomerForm(e) {
-      console.log(e)
-      if(!this.changeState) {
-        this.changeState = true
+      console.log(e);
+      if (!this.changeState) {
+        this.changeState = true;
       }
-    }
+    },
+    changePhone() {},
+    changeEmail(val) {
+      console.log(val);
+    },
   },
 };
 </script>
@@ -632,12 +971,118 @@ export default {
     margin-top: 20px;
   }
   .index-main {
-    .findPsd_form {
+    .findPsd_form1 {
       width: 40%;
       min-width: 500px;
       margin: 30px auto;
       padding: 40px 24px 20px;
       border: 1px solid #eaeaea;
+      position: relative;
+    }
+    .findPsd_form2 {
+      width: 40%;
+      min-width: 500px;
+      margin: 30px auto;
+      padding: 40px 24px 20px;
+      border: 1px solid #eaeaea;
+      position: relative;
+    }
+    .areaChart {
+      width: 400px;
+      height: 650px;
+      text-align: center;
+      line-height: 600px;
+      position: absolute;
+      top: 50px;
+      left: -450px;
+      border: 1px solid #eaeaea;
+      border-radius: 5px;
+      .close-pic {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        .close-btn {
+          width: 120px;
+          position: absolute;
+          bottom: 10px;
+          left: calc(50% - 60px);
+        }
+      }
+    }
+
+    .idCardAreaChart {
+      width: 400px;
+      height: 450px;
+      text-align: center;
+      line-height: 600px;
+      position: absolute;
+      top: 150px;
+      left: -450px;
+      border: 1px solid #eaeaea;
+      border-radius: 5px;
+      .close-pic {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        .close-btn {
+          width: 120px;
+          position: absolute;
+          bottom: 10px;
+          left: calc(50% - 60px);
+        }
+      }
+    }
+  }
+
+  .businessLicenseImg {
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+    width: 180px;
+    height: 180px;
+    margin-right: 12px;
+    cursor: pointer;
+    position: relative;
+    .pictrue-overlay {
+      width: 176px;
+      height: 176px;
+      background-color: rgba(0, 0, 0, 0.5);
+      transition: opacity 0.3s;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      text-align: center;
+      line-height: 176px;
+    }
+    .avatar {
+      width: 176px;
+      height: 176px;
+      margin: 2px;
+    }
+  }
+
+  .idCardImg {
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+    width: 180px;
+    height: 180px;
+    margin-right: 12px;
+    cursor: pointer;
+    position: relative;
+    .pictrue-overlay {
+      width: 176px;
+      height: 176px;
+      background-color: rgba(0, 0, 0, 0.5);
+      transition: opacity 0.3s;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      text-align: center;
+      line-height: 176px;
+    }
+    .avatar {
+      width: 176px;
+      height: 176px;
+      margin: 2px;
     }
   }
 }

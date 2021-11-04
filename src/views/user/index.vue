@@ -10,7 +10,7 @@
           <img src="@/assets/images/profile.jpg" class="avatar" />
           <ul class="left-ul">
             <li class="left-li flex flex-between flex-middle">
-              <span>姓名：</span><span>×××</span>
+              <span>姓名：</span><span>{{ userInfo.userName }}</span>
             </li>
             <li class="left-li flex flex-between flex-middle">
               <span>手机：</span><span>{{ userInfo.phone }}</span>
@@ -19,23 +19,12 @@
               <span>邮箱：</span><span>{{ userInfo.email }}</span>
             </li>
             <li class="left-li flex flex-between flex-middle">
-              <span>部门：</span><span></span>
+              <span>部门：</span><span>{{ userInfo.department }}</span>
             </li>
             <li class="left-li flex flex-between flex-middle">
-              <span>职务：</span><span></span>
+              <span>公司：</span><span>{{ userInfo.idCardGender }}</span>
             </li>
           </ul>
-          <div>
-            <el-button
-              plain
-              type="primary"
-              @click="editUserInfo"
-              class="edit-userInfo"
-              icon="el-icon-edit"
-              size="small"
-              >完善资料</el-button
-            >
-          </div>
         </section>
 
         <section>
@@ -47,13 +36,13 @@
             </li>
             <li class="view-right flex flex-column">
               <el-button class="list-item list-top" @click="updatePhone"
-                >修改手机号</el-button
+                >更换手机号</el-button
               >
               <el-button class="list-item" @click="bindEmail"
                 >绑定邮箱</el-button
               >
               <el-button class="list-item list-right" @click="updateEmail"
-                >修改邮箱</el-button
+                >更改邮箱</el-button
               >
             </li>
           </ul>
@@ -117,6 +106,8 @@ export default {
       userInfo: {
         phone: "",
         email: "",
+        userName: "",
+        department: ""
       },
     };
   },
@@ -160,7 +151,7 @@ export default {
         this.$router.push({
           name: "Login",
         });
-      })
+      });
     },
     // 绑定邮箱
     bindEmail() {
@@ -222,10 +213,6 @@ export default {
     },
     // 成功修改手机号
     successUpdatePhone() {},
-    // 完善用户资料
-    editUserInfo() {
-      this.$router.push("/userInfo")
-    }
   },
 };
 </script>

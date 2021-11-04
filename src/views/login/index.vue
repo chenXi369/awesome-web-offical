@@ -246,10 +246,10 @@
             <img src="@/assets/icon/weixin.png" class="view-icon" />
             <span class="view-title">微信登录</span>
           </div>
-          <div class="label-view" @click="openQQDialog">
+          <!-- <div class="label-view" @click="openQQDialog">
             <img src="@/assets/icon/QQ.png" class="view-icon" />
             <span class="view-title">QQ登录</span>
-          </div>
+          </div> -->
         </section>
       </footer>
 
@@ -805,7 +805,9 @@ $light_gray: #eee;
       justify-content: space-between;
       margin-top: 10px;
       .label-view {
+        width: 100%;
         display: flex;
+        justify-content: center;
         padding: 0px 20px;
         cursor: pointer;
         .view-title {
