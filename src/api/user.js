@@ -28,6 +28,14 @@ export function getInfo() {
     })
 }
 
+// 获取详细信息
+export function getDetailInfo() {
+    return request({
+        url: urlPost + '/user-info/get-info-detail',
+        method: 'get'
+    })
+}
+
 // 修改密码、改手机号、绑定邮箱、修改邮箱、修改身份信息
 export function updateUserInfo(data) {
     return request({

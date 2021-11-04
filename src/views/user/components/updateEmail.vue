@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="修改邮箱"
+    title="更换邮箱"
     width="35%"
     :visible.sync="updateEmailDialog"
     :close-on-click-modal="false"
@@ -199,7 +199,6 @@ export default {
         }
       })
     },
-    getCode() {},
     nextStep() {
       this.$refs['emailPhoneForm'].validate((valid) => {
         if(valid) {
@@ -237,6 +236,8 @@ export default {
                 return;
               }
             }, 1000);
+            this.loading = false;
+          }).catch(() => {
             this.loading = false;
           });
         } else {

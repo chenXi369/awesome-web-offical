@@ -212,7 +212,10 @@ export default {
       this.getUserInfo();
     },
     // 成功修改手机号
-    successUpdatePhone() {},
+    successUpdatePhone() {
+      this.updatePhoneDialog = false
+      this.getUserInfo();
+    },
   },
 };
 </script>

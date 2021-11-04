@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="修改手机号"
+    title="更换手机号"
     width="40%"
     :visible.sync="updatePhoneDialog"
     :close-on-click-modal="false"
@@ -336,7 +336,7 @@ export default {
     // 提交接口
     confirm() {
       let data = {
-        userName: this.newPhoneForm.newPhoneNum
+        telephone: this.newPhoneForm.newPhoneNum
       }
       this.$store.dispatch("user/updateUserInfo", data).then(() => {
         this.$message.success("已成功修改绑定手机!");
@@ -433,7 +433,9 @@ export default {
             }
           }, 1000);
           this.loading = false;
-        });
+        }).catch(() => {
+          this.loading = true;
+        })
       }
     },
     getCode2(value) {

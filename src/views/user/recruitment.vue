@@ -16,7 +16,7 @@
           class="findPsd_form1"
           size="small"
         >
-          <el-form-item prop="telephone" label="手机号">
+          <el-form-item prop="telephone" label="手机号码">
             <el-input
               v-model.trim="checkerForm.telephone"
               placeholder="请输入您的手机号"
@@ -32,7 +32,7 @@
               </el-button>
             </el-input>
           </el-form-item>
-          <el-form-item prop="email" label="个人邮箱">
+          <el-form-item prop="email" label="电子邮箱">
             <el-input
               v-model.trim="checkerForm.email"
               maxlength="20"
@@ -48,7 +48,7 @@
             </el-input>
           </el-form-item>
           <el-form-item prop="idCardFrontImg" label="身份证(正)">
-            <div class="flex flex-center">
+            <div class="flex flex-center flex-end">
               <template>
                 <div
                   v-if="idNumFrontImg"
@@ -98,7 +98,7 @@
             </div>
           </el-form-item>
           <el-form-item prop="idCardBackImg" label="身份证(反)">
-            <div class="flex flex-center">
+            <div class="flex flex-center flex-end">
               <template>
                 <div
                   v-if="idNumBackImg"
@@ -230,14 +230,14 @@
           class="findPsd_form2"
           size="small"
         >
-          <el-form-item prop="companyEmail" label="公司邮箱">
+          <!-- <el-form-item prop="companyEmail" label="公司邮箱">
             <el-input
               v-model.trim="customerForm.companyEmail"
               placeholder="请输入您的企业邮箱"
               maxlength="20"
               @input="changeCustomerForm(1)"
             ></el-input>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item prop="businessMobile" label="服务电话">
             <el-input
               v-model.trim="customerForm.businessMobile"
@@ -247,7 +247,7 @@
             ></el-input>
           </el-form-item>
           <el-form-item prop="businessLicenseImg" label="营业执照">
-            <div class="flex flex-center">
+            <div class="flex flex-center flex-end">
               <div
                 v-if="imageUrl"
                 class="businessLicenseImg"
@@ -364,9 +364,7 @@
           <el-form-item>
             <template>
               <el-button @click="goBack" style="width: 120px">返回</el-button>
-              <el-button @click="onSave" style="width: 120px"
-                >存入草稿</el-button
-              >
+              <el-button @click="onSave" style="width: 120px">保存</el-button>
               <!-- <el-button @click="onSave" style="width: 120px">修改草稿</el-button> -->
             </template>
 
@@ -402,6 +400,26 @@
         @closeDraft="closeDraft"
         @closePreviewDialog="closePreviewDialog"
       ></draft-list>
+
+      <!-- 绑定邮箱 -->
+      <bind-email
+        :bindEmailDialog="bindEmailDialog"
+        @closeBindEmail="closeBindEmail"
+        @successBindEmail="successBindEmail"
+      ></bind-email>
+      <!-- 修改邮箱 -->
+      <update-email
+        :updateEmailDialog="updateEmailDialog"
+        @closeUpdateEmail="closeUpdateEmail"
+        @successUpdateEmail="successUpdateEmail"
+      ></update-email>
+      <!-- 修改手机号 -->
+      <update-phone
+        :updatePhoneDialog="updatePhoneDialog"
+        @toBindEmail="toBindEmail"
+        @closeUpdatePhone="closeUpdatePhone"
+        @successUpdatePhone="successUpdatePhone"
+      ></update-phone>
     </section>
   </article>
 </template>
@@ -416,10 +434,13 @@ import {
   companyRecognition,
   idReCognition,
 } from "@/api/check";
-import { uploadPic, previewPic } from "@/api/user";
+import { getInfo, uploadPic, previewPic } from "@/api/user";
+import BindEmail from "./components/bindEmail.vue";
+import UpdateEmail from "./components/updateEmail.vue";
+import UpdatePhone from "./components/updatePhone.vue";
 
 export default {
-  components: { DraftList },
+  components: { DraftList, BindEmail, UpdateEmail, UpdatePhone },
   data() {
     const validateUserPhone = (rule, value, callback) => {
       const isPhone = /^([0-9]{3,4}-)?[0-9]{7,8}$/; // 0571-86295197
@@ -440,17 +461,17 @@ export default {
         callback("请输入正确手机号或座机电话"); // 校验不通过
       }
     };
-    const validateEmail = (rule, value, callback) => {
-      if (value.length == "") {
-        callback(new Error("请输入邮箱"));
-      } else if (
-        /^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$/.test(value)
-      ) {
-        callback();
-      } else {
-        callback(new Error("请输入正确的邮箱"));
-      }
-    };
+    // const validateEmail = (rule, value, callback) => {
+    //   if (value.length == "") {
+    //     callback(new Error("请输入邮箱"));
+    //   } else if (
+    //     /^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$/.test(value)
+    //   ) {
+    //     callback();
+    //   } else {
+    //     callback(new Error("请输入正确的邮箱"));
+    //   }
+    // };
     const validateBusyLicense = (rule, value, callback) => {
       if (!this.businessImgState) {
         callback(new Error("请上传公司营业执照照片"));
@@ -486,7 +507,7 @@ export default {
     return {
       customerForm: {
         businessMobile: "",
-        companyEmail: "",
+        // companyEmail: "",
         businessAddress: "",
         businessLicenseImg: "", // 营业执照
         businessName: "", // 企业名称
@@ -505,9 +526,9 @@ export default {
         businessName: [
           { required: true, trigger: "blur", message: "请输入企业名称！" },
         ],
-        companyEmail: [
-          { required: true, trigger: "blur", validator: validateEmail },
-        ],
+        // companyEmail: [
+        //   { required: true, trigger: "blur", validator: validateEmail },
+        // ],
         businessLicenseImg: [
           { required: true, trigger: "blur", validator: validateBusyLicense },
         ],
@@ -622,6 +643,10 @@ export default {
       IdCardBackImgState: false,
       IdCardFrontImgState: false,
       amplifyIdNumState: 0,
+
+      bindEmailDialog: false,
+      updateEmailDialog: false,
+      updatePhoneDialog: false,
     };
   },
   created() {
@@ -746,19 +771,18 @@ export default {
       return isJPG && isPNG && isLt2M;
     },
     submitCheck() {
-      // this.$refs["checkForm"].validate((valid) => {
-      //   if (valid) {
-      //     let data = { ...this.customerForm };
-      //     data.reviewStatus = 1;
-      //     submitCompanyInfo(data).then(() => {
-      //       this.$message.success("商户信息已成功提交！");
-      //       this.changeState = false;
-      //     });
-      //   }
-      // });
-      this.$refs["checkerForm"].validate((valid) => {
+      this.$refs["checkForm"].validate((valid) => {
         if (valid) {
-          console.log(valid);
+          this.$refs["checkerForm"].validate((valid1) => {
+            if (valid1) {
+              let data = { ...this.customerForm };
+              data.reviewStatus = 1;
+              submitCompanyInfo(data).then(() => {
+                this.$message.success("商户信息已成功提交！");
+                this.changeState = false;
+              });
+            }
+          });
         }
       });
     },
@@ -783,12 +807,12 @@ export default {
       });
     },
     successUploadUser(response, file) {
-      console.log(file);
       this.buinessPic = file.raw;
       this.imageUrl = URL.createObjectURL(file.raw);
       this.beforeAvatarUpload(file.raw);
       this.getBase64(file.raw).then((e) => {
         companyRecognition({ businessLicenseImg: e }).then((res) => {
+          console.log(JSON.parse(res.msg));
           this.companyInfo = { ...JSON.parse(res.msg).words_result };
           this.businessImgState = true;
           this.customerForm.businessLicenseImg = file.name;
@@ -844,10 +868,10 @@ export default {
       this.beforeAvatarUpload(file);
     },
     successUploadIdNumFront(response, file) {
-      this.idNumFrontImg = URL.createObjectURL(file.raw);
       this.getBase64(file.raw).then((e) => {
         idReCognition({ idCardFrontImg: e }).then((res) => {
           if (JSON.parse(res.msg).image_status === "normal") {
+            this.idNumFrontImg = URL.createObjectURL(file.raw);
             this.IdCardFrontImgState = true;
             let idCarFrontInfo = JSON.parse(res.msg).words_result;
             this.checkerForm.userName = idCarFrontInfo.姓名.words;
@@ -857,6 +881,7 @@ export default {
             this.checkerForm.idCardNo = idCarFrontInfo.公民身份号码.words;
             this.checkerForm.idCardAddr = idCarFrontInfo.住址.words;
           } else {
+            this.$message.error("请上传正确的身份证正面图片");
             this.IdCardFrontImgState = false;
             return;
           }
@@ -864,11 +889,11 @@ export default {
       });
     },
     successUploadIdNumBack(response, file) {
-      this.idNumBackImg = URL.createObjectURL(file.raw);
       this.getBase64(file.raw).then((e) => {
         idReCognition({ idCardFrontImg: e }).then((res) => {
           console.log(JSON.parse(res.msg));
           if (JSON.parse(res.msg).image_status === "reversed_side") {
+            this.idNumBackImg = URL.createObjectURL(file.raw);
             this.IdCardBackImgState = true;
             let idCarBackInfo = JSON.parse(res.msg).words_result;
             this.checkerForm.idCardStartTime = this.changeDate(
@@ -878,6 +903,7 @@ export default {
               idCarBackInfo.失效日期.words
             );
           } else {
+            this.$message.error("请上传正确的身份证反面图片");
             this.IdCardBackImgState = false;
             return;
           }
@@ -953,9 +979,51 @@ export default {
         this.changeState = true;
       }
     },
-    changePhone() {},
+
+    changePhone() {
+      this.updatePhoneDialog = true;
+    },
     changeEmail(val) {
-      console.log(val);
+      if (val === "") {
+        this.bindEmailDialog = true;
+      } else {
+        this.updateEmailDialog = true;
+      }
+    },
+    closeBindEmail(val) {
+      this.bindEmailDialog = val;
+    },
+    successBindEmail() {
+      this.bindEmailDialog = false;
+      this.getUserInfo();
+    },
+
+    closeUpdateEmail(val) {
+      this.updateEmailDialog = val;
+    },
+    successUpdateEmail() {
+      this.getUserInfo();
+      this.updateEmailDialog = false;
+    },
+    // 手机号的绑定邮箱
+    toBindEmail() {
+      this.updatePhoneDialog = false;
+      this.bindEmailDialog = true;
+    },
+    closeUpdatePhone(val) {
+      this.updatePhoneDialog = val;
+    },
+    successUpdatePhone() {
+      this.updatePhoneDialog = false;
+      this.getUserInfo();
+    },
+    getUserInfo() {
+      getInfo().then((res) => {
+        Cookies.set("emailNum", res.data.email);
+        Cookies.set("phoneNum", res.data.telephone);
+        this.checkerForm.email = res.data.email;
+        this.checkerForm.telephone = res.data.telephone;
+      });
     },
   },
 };

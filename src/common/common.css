@@ -21,6 +21,9 @@ ul {
 .flex-middle {
 	align-items: center;
 }
+.flex-end {
+	align-items: flex-end;
+}
 /* 浮动方式 */
 .fl {
 	float: left;

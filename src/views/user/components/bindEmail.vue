@@ -49,7 +49,7 @@
         type="primary"
         @click="confirm"
         class="login_btn"
-        :loading="loading"
+        :disabled="loading"
         >确 认</el-button
       >
     </div>
@@ -73,13 +73,10 @@ export default {
     const validateEmailNum = (rule, value, callback) => {
       if (value.length == "") {
         callback(new Error("请输入正确的邮箱号"));
-      } else if (
-        /^1[34578]\d{9}$/.test(value) ||
-        /^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$/.test(value)
-      ) {
+      } else if (/^[0-9a-zA-Z_.-]+[@][0-9a-zA-Z_.-]+([.][a-zA-Z]+){1,2}$/.test(value)) {
         callback();
       } else {
-        callback(new Error("请输入正确的手机号/邮箱"));
+        callback(new Error("请输入正确的邮箱号"));
       }
     };
     return {
@@ -131,6 +128,8 @@ export default {
             }
           }, 1000);
           this.loading = false;
+        }).catch(() => {
+          this.loading = false;
         });
       }
     },
@@ -150,7 +149,9 @@ export default {
             setToken(res.data.access_token)
             this.$store.commit('user/SET_TOKEN', res.data.access_token)
             this.$emit("successBindEmail");
-          });
+          }).catch(() => {
+            
+          })
         }
       });
     },
