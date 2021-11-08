@@ -165,7 +165,7 @@
 
 <script>
 import Cookies from 'js-cookie'
-import { getInfo } from "@/api/user";
+import { getDetailInfo } from "@/api/user";
 import { getCode, getCodeImg } from "@/api/login";
 
 import CommonHeader from "./components/commonHeader.vue";
@@ -288,7 +288,7 @@ export default {
       }
     },
     getUserInfo() {
-      getInfo().then((res) => {
+      getDetailInfo().then((res) => {
         console.log(res.data)
         Cookies.set("emailNum", res.data.email);
         Cookies.set("phoneNum", res.data.telephone);

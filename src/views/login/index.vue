@@ -548,8 +548,14 @@ export default {
       // 微信登录
       let newTime = Date.now();
       let stateVal = "haolong" + newTime;
+      
       let href = `https://open.weixin.qq.com/connect/qrconnect?appid=wx4de421c9641e8e0c&redirect_uri=http%3A%2F%2F192.168.1.254%3A9520/login&response_type=code&scope=snsapi_login&state=${stateVal}#wechat_redirect`;
       window.location.href = href;
+      // window.open(
+      //       authorizeUrlres,
+      //       "_blank",
+      //       "toolbar=no,width=800, height=600"
+      //     );
     },
     closeThirdLogin() {
       this.thirdLoginVisible = false

@@ -51,14 +51,6 @@
         >
         </el-table-column>
         <el-table-column
-          label="公司邮箱"
-          width="200"
-          align="center"
-          prop="companyEmail"
-        >
-        </el-table-column>
-
-        <el-table-column
           label="服务电话"
           width="200"
           align="center"
@@ -75,7 +67,7 @@
         <el-table-column fixed="right" label="操作" width="100" align="center">
           <template slot-scope="scope">
             <el-button @click="useDraft(scope.row)" type="text" size="small"
-              >使用草稿</el-button
+              >详情</el-button
             >
           </template>
         </el-table-column>
@@ -93,6 +85,12 @@
           <img :src="previewImgUrl" class="preview-area" />
         </section>
       </el-dialog>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button plain type="primary" @click="addBuiness"
+          >新增商家</el-button
+        >
+      </span>
     </el-dialog>
   </div>
 </template>
@@ -110,12 +108,12 @@ export default {
     },
     previewArea: {
       type: Boolean,
-      default: false
+      default: false,
     },
     previewImgUrl: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
   data() {
     return {
@@ -134,6 +132,10 @@ export default {
     },
     closePreview() {
       this.$emit("closePreviewDialog", false);
+    },
+    // 新增商家
+    addBuiness() {
+      this.$emit("addBuiness")
     }
   },
 };

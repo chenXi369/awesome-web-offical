@@ -22,7 +22,7 @@
               <span>部门：</span><span>{{ userInfo.department }}</span>
             </li>
             <li class="left-li flex flex-between flex-middle">
-              <span>公司：</span><span>{{ userInfo.idCardGender }}</span>
+              <span>公司：</span><span>{{ userInfo.idCardBirthday }}</span>
             </li>
           </ul>
         </section>
@@ -93,7 +93,7 @@ import UpdateEmail from "./components/updateEmail.vue";
 import UpdatePwd from "./components/updatePwd.vue";
 import Cookies from "js-cookie";
 
-import { getInfo } from "@/api/user";
+import { getDetailInfo } from "@/api/user";
 
 export default {
   data() {
@@ -155,7 +155,7 @@ export default {
     },
     // 绑定邮箱
     bindEmail() {
-      getInfo().then((res) => {
+      getDetailInfo().then((res) => {
         if (res.data.email === "" || res.data.email === null) {
           this.bindEmailDialog = true;
         } else {
@@ -168,7 +168,7 @@ export default {
     },
     // 修改邮箱
     updateEmail() {
-      getInfo().then((res) => {
+      getDetailInfo().then((res) => {
         if (res.data.email !== "" && res.data.email !== null) {
           this.updateEmailDialog = true;
         } else {
@@ -200,11 +200,14 @@ export default {
       this.bindEmailDialog = true;
     },
     getUserInfo() {
-      getInfo().then((res) => {
+      getDetailInfo().then((res) => {
         Cookies.set("emailNum", res.data.email);
         Cookies.set("phoneNum", res.data.telephone);
         this.userInfo.email = res.data.email;
         this.userInfo.phone = res.data.telephone;
+        this.userInfo.userName = res.data.userName
+        this.userInfo.department = res.data.department
+        // this.userInfo.idCardBirthday = res.data.idCardBirthday
       });
     },
     successBindEmail() {

@@ -28,6 +28,7 @@
                 size="small"
                 type="text"
                 @click="changePhone"
+                @input="checkerFormChange(0)"
                 >更换手机号
               </el-button>
             </el-input>
@@ -43,12 +44,13 @@
                 size="small"
                 type="text"
                 @click="changeEmail(checkerForm.email)"
+                @input="checkerFormChange(1)"
                 >{{ checkerForm.email === "" ? "绑定邮箱" : "更改邮箱" }}
               </el-button>
             </el-input>
           </el-form-item>
           <el-form-item prop="idCardFrontImg" label="身份证(正)">
-            <div class="flex flex-center flex-end">
+            <div class="flex flex-column flex-middle">
               <template>
                 <div
                   v-if="idNumFrontImg"
@@ -66,11 +68,7 @@
                       style="color: #fff; font-size: 32px"
                     ></i>
                   </div>
-                  <img
-                    :src="idNumFrontImg"
-                    class="avatar"
-                    style="margin-right: 10px"
-                  />
+                  <img :src="idNumFrontImg" class="avatar" />
                 </div>
               </template>
 
@@ -86,7 +84,7 @@
                   v-if="idNumFrontImg !== ''"
                   size="small"
                   type="text"
-                  style="width: 120px"
+                  style="width: 178px"
                   >重新上传</el-button
                 >
                 <i
@@ -98,7 +96,7 @@
             </div>
           </el-form-item>
           <el-form-item prop="idCardBackImg" label="身份证(反)">
-            <div class="flex flex-center flex-end">
+            <div class="flex flex-column flex-middle">
               <template>
                 <div
                   v-if="idNumBackImg"
@@ -116,11 +114,7 @@
                       style="color: #fff; font-size: 32px"
                     ></i>
                   </div>
-                  <img
-                    :src="idNumBackImg"
-                    class="avatar"
-                    style="margin-right: 10px"
-                  />
+                  <img :src="idNumBackImg" class="avatar" />
                 </div>
               </template>
 
@@ -136,7 +130,7 @@
                   v-if="idNumBackImg !== ''"
                   size="small"
                   type="text"
-                  style="width: 120px"
+                  style="width: 178px"
                   >重新上传</el-button
                 >
                 <i
@@ -152,13 +146,15 @@
               v-model.trim="checkerForm.userName"
               placeholder="请输入您的姓名"
               maxlength="20"
+              @input="checkerFormChange(2)"
             ></el-input>
           </el-form-item>
           <el-form-item prop="idCardAddr" label="地址">
             <el-input
               v-model.trim="checkerForm.idCardAddr"
               placeholder="请输入您的证件地址"
-              maxlength="20"
+              maxlength="30"
+              @input="checkerFormChange(3)"
             ></el-input>
           </el-form-item>
           <el-form-item prop="idCardNo" label="身份证号">
@@ -166,6 +162,7 @@
               v-model.trim="checkerForm.idCardNo"
               placeholder="请输入您的身份证件号码"
               maxlength="30"
+              @input="checkerFormChange(4)"
             ></el-input>
           </el-form-item>
           <el-form-item prop="idCardBirthday" label="出生日期">
@@ -174,6 +171,7 @@
               type="date"
               placeholder="选择有效开始日期"
               style="width: 100%"
+              @input="checkerFormChange(5)"
             >
             </el-date-picker>
           </el-form-item>
@@ -183,6 +181,7 @@
               type="date"
               placeholder="选择有效开始日期"
               style="width: 100%"
+              @input="checkerFormChange(6)"
             >
             </el-date-picker>
           </el-form-item>
@@ -192,6 +191,7 @@
               type="date"
               placeholder="选择有效结束日期"
               style="width: 100%"
+              @input="checkerFormChange(7)"
             >
             </el-date-picker>
           </el-form-item>
@@ -200,6 +200,7 @@
               v-model.trim="checkerForm.department"
               placeholder="请输入您的部门名称"
               maxlength="20"
+              @input="checkerFormChange(8)"
             ></el-input>
           </el-form-item>
           <section class="idCardAreaChart" v-show="idCardVisible">
@@ -247,7 +248,7 @@
             ></el-input>
           </el-form-item>
           <el-form-item prop="businessLicenseImg" label="营业执照">
-            <div class="flex flex-center flex-end">
+            <div class="flex flex-column flex-middle">
               <div
                 v-if="imageUrl"
                 class="businessLicenseImg"
@@ -278,7 +279,7 @@
                   v-if="imageUrl !== ''"
                   size="small"
                   type="text"
-                  style="width: 120px"
+                  style="width: 178px"
                   >重新上传</el-button
                 >
                 <i
@@ -398,6 +399,7 @@
         @previewPic="previewPic"
         @useDraft="useDraft"
         @closeDraft="closeDraft"
+        @addBuiness="addBuiness"
         @closePreviewDialog="closePreviewDialog"
       ></draft-list>
 
@@ -434,7 +436,12 @@ import {
   companyRecognition,
   idReCognition,
 } from "@/api/check";
-import { getInfo, uploadPic, previewPic } from "@/api/user";
+import {
+  getDetailInfo,
+  uploadPic,
+  previewPic,
+  updateUserInfo,
+} from "@/api/user";
 import BindEmail from "./components/bindEmail.vue";
 import UpdateEmail from "./components/updateEmail.vue";
 import UpdatePhone from "./components/updatePhone.vue";
@@ -555,7 +562,9 @@ export default {
       draftVisible: false,
       draftList: [],
       businessImgState: false,
-      idNumImgState: false,
+      idNumFrontState: false,
+      idNumBackState: false,
+
       companyInfo: {},
       imageUrl: "",
       hasEndTime: false,
@@ -627,6 +636,8 @@ export default {
         ],
       },
       buinessPic: {},
+      userInfoIdBackImg: {},
+      userInfoIdFrontImg: {},
       previewImgUrl: "",
       previewArea: false,
       changeState: false,
@@ -647,6 +658,7 @@ export default {
       bindEmailDialog: false,
       updateEmailDialog: false,
       updatePhoneDialog: false,
+      checkerFormSatus: false,
     };
   },
   created() {
@@ -723,19 +735,42 @@ export default {
         this.imageUrl = "data:image/gif;base64," + res.data;
         this.businessImgState = true;
       });
+      this.getDetailUserInfo();
+    },
+    getDetailUserInfo() {
+      getDetailInfo()
+        .then((res) => {
+          this.checkerForm = {
+            email: res.data.email,
+            telephone: res.data.telephone,
+            idCardFrontImg: res.data.idCardFrontImg,
+            idCardBackImg: res.data.idCardBackImg,
+            userName: res.data.userName,
+            idCardAddr: res.data.idCardAddr,
+            idCardBirthday: res.data.idCardBirthday,
+            idCardStartTime: res.data.idCardStartTime,
+            idCardEndTime: res.data.idCardEndTime,
+            idCardNo: res.data.idCardNo,
+            department: res.data.department,
+          };
+        })
+        .then(() => {
+          previewPic({ filePath: this.checkerForm.idCardFrontImg }).then(
+            (res) => {
+              this.idNumFrontImg = "data:image/gif;base64," + res.data;
+              this.idNumFrontState = true;
+            }
+          );
+          previewPic({ filePath: this.checkerForm.idCardBackImg }).then(
+            (res) => {
+              this.idNumBackImg = "data:image/gif;base64," + res.data;
+              this.idNumBackState = true;
+            }
+          );
+        });
     },
     closeDraft(val) {
-      this.$confirm("是否要重新编辑商家信息？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          this.draftVisible = val;
-        })
-        .catch(() => {
-          this.draftVisible = !val;
-        });
+      this.draftVisible = val;
     },
     // 鼠标移入事件
     mouseInCheckPic() {
@@ -781,6 +816,10 @@ export default {
                 this.$message.success("商户信息已成功提交！");
                 this.changeState = false;
               });
+              let userInfo = { ...this.checkerForm };
+              updateUserInfo(userInfo).then(() => {
+                this.checkerFormSatus = false;
+              });
             }
           });
         }
@@ -819,29 +858,31 @@ export default {
 
           let customerForm = {
             businesSocialCreditCode:
-              this.customerForm.businesSocialCreditCode.trim() === ""
+              this.customerForm.businesSocialCreditCode === ""
                 ? this.companyInfo.社会信用代码.words
                 : this.customerForm.businesSocialCreditCode,
             businessStartTime:
-              this.customerForm.businessStartTime.trim() === ""
+              this.customerForm.businessStartTime === "" ||
+              this.customerForm.businessStartTime === null
                 ? this.companyInfo.成立日期.words
                 : this.customerForm.businessStartTime,
             businessEndTime:
-              this.customerForm.businessEndTime.trim() === ""
+              this.customerForm.businessEndTime === "" ||
+              this.customerForm.businessEndTime === null
                 ? this.companyInfo.有效期.words === "无"
                   ? ""
                   : this.companyInfo.有效期.words
                 : this.customerForm.businessEndTime,
             businesLegalPerson:
-              this.customerForm.businesLegalPerson.trim() === ""
+              this.customerForm.businesLegalPerson === ""
                 ? this.companyInfo.法人.words
                 : this.customerForm.businesLegalPerson,
             businessName:
-              this.customerForm.businessName.trim() === ""
+              this.customerForm.businessName === ""
                 ? this.companyInfo.单位名称.words
                 : this.customerForm.businessName,
             businessAddress:
-              this.customerForm.businessAddress.trim() === ""
+              this.customerForm.businessAddress === ""
                 ? this.companyInfo.地址.words
                 : this.customerForm.businessAddress,
           };
@@ -853,12 +894,13 @@ export default {
             customerForm.businesLegalPerson;
           this.customerForm.businessName = customerForm.businessName;
           this.customerForm.businessAddress = customerForm.businessAddress;
-
           if (
             this.customerForm.businessEndTime === "" &&
             this.companyInfo.有效期.words === "无"
           ) {
             this.hasEndTime = true;
+          } else {
+            this.hasEndTime = false;
           }
         });
       });
@@ -868,6 +910,7 @@ export default {
       this.beforeAvatarUpload(file);
     },
     successUploadIdNumFront(response, file) {
+      this.userInfoIdFrontImg = file.raw;
       this.getBase64(file.raw).then((e) => {
         idReCognition({ idCardFrontImg: e }).then((res) => {
           if (JSON.parse(res.msg).image_status === "normal") {
@@ -880,6 +923,7 @@ export default {
             );
             this.checkerForm.idCardNo = idCarFrontInfo.公民身份号码.words;
             this.checkerForm.idCardAddr = idCarFrontInfo.住址.words;
+            this.checkerForm.idCardFrontImg = file.name;
           } else {
             this.$message.error("请上传正确的身份证正面图片");
             this.IdCardFrontImgState = false;
@@ -889,6 +933,7 @@ export default {
       });
     },
     successUploadIdNumBack(response, file) {
+      this.userInfoIdBackImg = file.raw;
       this.getBase64(file.raw).then((e) => {
         idReCognition({ idCardFrontImg: e }).then((res) => {
           console.log(JSON.parse(res.msg));
@@ -902,6 +947,7 @@ export default {
             this.checkerForm.idCardEndTime = this.changeDate(
               idCarBackInfo.失效日期.words
             );
+            this.checkerForm.idCardBackImg = file.name;
           } else {
             this.$message.error("请上传正确的身份证反面图片");
             this.IdCardBackImgState = false;
@@ -930,7 +976,7 @@ export default {
         )}`;
         submitCompanyInfo(newData).then(() => {
           // 存入草稿成功的同时上传图片
-          this.uploadPic(newData.businessLicenseImg);
+          this.uploadPic(newData.businessLicenseImg, this.buinessPic);
           this.$message({
             type: "success",
             message: "已存入草稿箱!",
@@ -939,11 +985,10 @@ export default {
         });
       } else {
         let newObj = data;
-        newObj.businessLicenseImg = `${
-          newObj.businesSocialCreditCode
-        }${newObj.businessLicenseImg.slice(
-          newObj.businessLicenseImg.indexOf(".")
-        )}`;
+        console.log(newObj);
+        if (this.imageUrl !== "") {
+          this.uploadPic(newObj.businessLicenseImg, this.buinessPic);
+        }
         updateCompanyInfo(newObj).then(() => {
           this.$message({
             type: "success",
@@ -952,16 +997,60 @@ export default {
           this.changeState = false;
         });
       }
+
+      let userInfo = { ...this.checkerForm };
+      let { telephone, ...rest } = userInfo;
+      let newVal = { ...rest };
+      console.log(telephone);
+      newVal.idCardBackImg = `${
+        newVal.idCardNo
+      }Back${newVal.idCardBackImg.slice(newVal.idCardBackImg.indexOf("."))}`;
+      newVal.idCardFrontImg = `${
+        newVal.idCardNo
+      }Front${newVal.idCardFrontImg.slice(newVal.idCardFrontImg.indexOf("."))}`;
+      if (
+        Cookies.get("emailNum") !== "" &&
+        Cookies.get("emailNum") !== undefined
+      ) {
+        let { email, ...resData } = newVal;
+        console.log(email);
+        let userInfoData = { ...resData };
+        console.log(this.idNumBackImg);
+        updateUserInfo({ ...resData }).then(() => {
+          if (this.idNumBackImg !== "") {
+            this.uploadPic(userInfoData.idCardBackImg, this.userInfoIdBackImg);
+          }
+          if (this.idNumFrontImg !== "") {
+            this.uploadPic(
+              userInfoData.idCardFrontImg,
+              this.userInfoIdFrontImg
+            );
+          }
+          this.checkerFormSatus = false;
+        });
+      } else {
+        updateUserInfo({ ...newVal }).then(() => {
+          if (this.checkerForm.idNumBackImg !== "") {
+            this.uploadPic(newVal.idCardBackImg, this.userInfoIdBackImg);
+          }
+          if (this.checkerForm.idNumFrontImg !== "") {
+            this.uploadPic(newVal.idCardFrontImg, this.userInfoIdFrontImg);
+          }
+          this.checkerFormSatus = false;
+        });
+      }
     },
     // 上传图片
-    uploadPic(picPath) {
-      const formData = new FormData();
-      formData.append("fileName", picPath);
-      formData.append("file", this.buinessPic);
+    uploadPic(picPath, obj) {
+      if (obj.name !== undefined) {
+        const formData = new FormData();
+        formData.append("fileName", picPath);
+        formData.append("file", obj);
 
-      uploadPic(formData).then((res) => {
-        console.log(res.data);
-      });
+        uploadPic(formData).then((res) => {
+          console.log(res);
+        });
+      }
     },
     // 预览图片
     previewPic(path) {
@@ -1018,12 +1107,19 @@ export default {
       this.getUserInfo();
     },
     getUserInfo() {
-      getInfo().then((res) => {
+      getDetailInfo().then((res) => {
         Cookies.set("emailNum", res.data.email);
         Cookies.set("phoneNum", res.data.telephone);
         this.checkerForm.email = res.data.email;
         this.checkerForm.telephone = res.data.telephone;
       });
+    },
+    checkerFormChange() {
+      this.checkerFormSatus = true;
+    },
+    // 新增商家
+    addBuiness() {
+      this.draftVisible = false;
     },
   },
 };
@@ -1107,7 +1203,7 @@ export default {
     border-radius: 5px;
     width: 180px;
     height: 180px;
-    margin-right: 12px;
+    margin-bottom: 8px;
     cursor: pointer;
     position: relative;
     .pictrue-overlay {
@@ -1133,7 +1229,7 @@ export default {
     border-radius: 5px;
     width: 180px;
     height: 180px;
-    margin-right: 12px;
+    margin-bottom: 8px;
     cursor: pointer;
     position: relative;
     .pictrue-overlay {
