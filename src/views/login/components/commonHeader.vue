@@ -117,7 +117,7 @@ export default {
     };
   },
   created() {
-    if (this.$store.state.user.token !== "") {
+    if (this.$store.state.user.token !== "" && this.$store.state.user.token !== undefined) {
       this.isToken = false;
     }
   },
@@ -136,6 +136,7 @@ export default {
       })
         .then(() => {
           this.$store.dispatch("user/logout").then(() => {
+            this.isToken = true
             this.$router.push({
               path: "/",
             });
@@ -154,7 +155,7 @@ export default {
     },
     // 修改密码的弹窗
     updatePwd() {
-      this.$emit("openUpdatePwd")
+      this.$emit("openUpdatePwd");
     },
     menuEnter(name) {
       if (name === "产品") {
@@ -167,27 +168,27 @@ export default {
       }
     },
     goMenus(title) {
-      if(title === '首页') {
-        this.$router.push(`/`)
-      } else if(title === '客户') {
-        this.$router.push(`/customer`)
-      } else if(title === '关于我们') {
-        this.$router.push(`/mine`)
+      if (title === "首页") {
+        this.$router.push(`/`);
+      } else if (title === "客户") {
+        this.$router.push(`/customer`);
+      } else if (title === "关于我们") {
+        this.$router.push(`/mine`);
       }
-    }
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .header {
-  width: 60%;
-  padding: 10px 20% 0;
+  width: 100%;
+  min-width: 960px;
+  padding: 10px 0 0;
   height: 90px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  position: fixed;
+  justify-content: center;
   top: 0px;
 
   .left {
@@ -200,6 +201,8 @@ export default {
     // }
     .logo {
       width: 240px;
+      min-width: 240px;
+      height: 100%;
     }
   }
 
@@ -306,7 +309,10 @@ export default {
   }
 }
 .el-dropdown-menu__item {
-    list-style: none;
-    line-height: 28px;
+  width: 60px;
+  min-width: 60px;
+  text-align: center;
+  list-style: none;
+  line-height: 28px;
 }
 </style>

@@ -365,7 +365,9 @@
           <el-form-item>
             <template>
               <el-button @click="goBack" style="width: 120px">返回</el-button>
-              <el-button @click="onSave" style="width: 120px">保存</el-button>
+              <el-button @click="onSave" style="width: 120px"
+                >保存草稿</el-button
+              >
               <!-- <el-button @click="onSave" style="width: 120px">修改草稿</el-button> -->
             </template>
 
@@ -487,10 +489,11 @@ export default {
       }
     };
     const validateEndTime = (rule, value, callback) => {
+      console.log(value);
       if (this.hasEndTime) {
         callback();
       } else {
-        if (value === "") {
+        if (value === "" || value === null) {
           callback(new Error("请选择营业执照过期时间！"));
         } else {
           callback();
@@ -727,6 +730,7 @@ export default {
         businessEndTime: row.businessEndTime,
         businesLegalPerson: row.businesLegalPerson,
       };
+      Cookies.set("businessName", row.businessName);
       if (this.customerForm.businessEndTime === "") {
         this.hasEndTime = true;
       }
@@ -851,57 +855,65 @@ export default {
       this.beforeAvatarUpload(file.raw);
       this.getBase64(file.raw).then((e) => {
         companyRecognition({ businessLicenseImg: e }).then((res) => {
-          console.log(JSON.parse(res.msg));
-          this.companyInfo = { ...JSON.parse(res.msg).words_result };
-          this.businessImgState = true;
-          this.customerForm.businessLicenseImg = file.name;
+          this.$nextTick(() => {
+            this.$refs["checkForm"].clearValidate()
+            console.log(JSON.parse(res.msg));
+            this.companyInfo = { ...JSON.parse(res.msg).words_result };
+            this.businessImgState = true;
+            this.customerForm.businessLicenseImg = file.name;
 
-          let customerForm = {
-            businesSocialCreditCode:
-              this.customerForm.businesSocialCreditCode === ""
-                ? this.companyInfo.社会信用代码.words
-                : this.customerForm.businesSocialCreditCode,
-            businessStartTime:
-              this.customerForm.businessStartTime === "" ||
-              this.customerForm.businessStartTime === null
-                ? this.companyInfo.成立日期.words
-                : this.customerForm.businessStartTime,
-            businessEndTime:
-              this.customerForm.businessEndTime === "" ||
-              this.customerForm.businessEndTime === null
-                ? this.companyInfo.有效期.words === "无"
+            let customerForm = {
+              businesSocialCreditCode: this.companyInfo.社会信用代码.words,
+              // this.customerForm.businesSocialCreditCode === ""
+              //   ? this.companyInfo.社会信用代码.words
+              //   : this.customerForm.businesSocialCreditCode,
+              businessStartTime: this.companyInfo.成立日期.words,
+              // this.customerForm.businessStartTime === "" ||
+              // this.customerForm.businessStartTime === null
+              //   ? this.companyInfo.成立日期.words
+              //   : this.customerForm.businessStartTime,
+              businessEndTime:
+                this.companyInfo.有效期.words === "无"
                   ? ""
-                  : this.companyInfo.有效期.words
-                : this.customerForm.businessEndTime,
-            businesLegalPerson:
-              this.customerForm.businesLegalPerson === ""
-                ? this.companyInfo.法人.words
-                : this.customerForm.businesLegalPerson,
-            businessName:
-              this.customerForm.businessName === ""
-                ? this.companyInfo.单位名称.words
-                : this.customerForm.businessName,
-            businessAddress:
-              this.customerForm.businessAddress === ""
-                ? this.companyInfo.地址.words
-                : this.customerForm.businessAddress,
-          };
-          this.customerForm.businesSocialCreditCode =
-            customerForm.businesSocialCreditCode;
-          this.customerForm.businessStartTime = customerForm.businessStartTime;
-          this.customerForm.businessEndTime = customerForm.businessEndTime;
-          this.customerForm.businesLegalPerson =
-            customerForm.businesLegalPerson;
-          this.customerForm.businessName = customerForm.businessName;
-          this.customerForm.businessAddress = customerForm.businessAddress;
-          if (
-            this.customerForm.businessEndTime === "" &&
-            this.companyInfo.有效期.words === "无"
-          ) {
-            this.hasEndTime = true;
-          } else {
-            this.hasEndTime = false;
-          }
+                  : this.companyInfo.有效期.words,
+              // this.customerForm.businessEndTime === "" ||
+              // this.customerForm.businessEndTime === null
+              // ? this.companyInfo.有效期.words === "无"
+              //   ? ""
+              //   : this.companyInfo.有效期.words
+              //   : this.customerForm.businessEndTime,
+              businesLegalPerson: this.companyInfo.法人.words,
+              // this.customerForm.businesLegalPerson === ""
+              //   ? this.companyInfo.法人.words
+              //   : this.customerForm.businesLegalPerson,
+              businessName: this.companyInfo.单位名称.words,
+              // this.customerForm.businessName === ""
+              //   ? this.companyInfo.单位名称.words
+              //   : this.customerForm.businessName,
+              businessAddress: this.companyInfo.地址.words,
+              // this.customerForm.businessAddress === ""
+              //   ? this.companyInfo.地址.words
+              //   : this.customerForm.businessAddress,
+            };
+
+            this.customerForm.businesSocialCreditCode =
+              customerForm.businesSocialCreditCode;
+            this.customerForm.businessStartTime =
+              customerForm.businessStartTime;
+            this.customerForm.businessEndTime = customerForm.businessEndTime;
+            this.customerForm.businesLegalPerson =
+              customerForm.businesLegalPerson;
+            this.customerForm.businessName = customerForm.businessName;
+            this.customerForm.businessAddress = customerForm.businessAddress;
+            if (
+              this.customerForm.businessEndTime === "" &&
+              this.companyInfo.有效期.words === "无"
+            ) {
+              this.hasEndTime = true;
+            } else {
+              this.hasEndTime = false;
+            }
+          });
         });
       });
     },
@@ -913,22 +925,26 @@ export default {
       this.userInfoIdFrontImg = file.raw;
       this.getBase64(file.raw).then((e) => {
         idReCognition({ idCardFrontImg: e }).then((res) => {
-          if (JSON.parse(res.msg).image_status === "normal") {
-            this.idNumFrontImg = URL.createObjectURL(file.raw);
-            this.IdCardFrontImgState = true;
-            let idCarFrontInfo = JSON.parse(res.msg).words_result;
-            this.checkerForm.userName = idCarFrontInfo.姓名.words;
-            this.checkerForm.idCardBirthday = this.changeDate(
-              idCarFrontInfo.出生.words
-            );
-            this.checkerForm.idCardNo = idCarFrontInfo.公民身份号码.words;
-            this.checkerForm.idCardAddr = idCarFrontInfo.住址.words;
-            this.checkerForm.idCardFrontImg = file.name;
-          } else {
-            this.$message.error("请上传正确的身份证正面图片");
-            this.IdCardFrontImgState = false;
-            return;
-          }
+          this.$nextTick(() => {
+            this.$refs["checkerForm"].clearValidate()
+            console.log(this.$refs["checkerForm"]);
+            if (JSON.parse(res.msg).image_status === "normal") {
+              this.idNumFrontImg = URL.createObjectURL(file.raw);
+              this.IdCardFrontImgState = true;
+              let idCarFrontInfo = JSON.parse(res.msg).words_result;
+              this.checkerForm.userName = idCarFrontInfo.姓名.words;
+              this.checkerForm.idCardBirthday = this.changeDate(
+                idCarFrontInfo.出生.words
+              );
+              this.checkerForm.idCardNo = idCarFrontInfo.公民身份号码.words;
+              this.checkerForm.idCardAddr = idCarFrontInfo.住址.words;
+              this.checkerForm.idCardFrontImg = file.name;
+            } else {
+              this.$message.error("请上传正确的身份证正面图片");
+              this.IdCardFrontImgState = false;
+              return;
+            }
+          });
         });
       });
     },
@@ -937,6 +953,7 @@ export default {
       this.getBase64(file.raw).then((e) => {
         idReCognition({ idCardFrontImg: e }).then((res) => {
           console.log(JSON.parse(res.msg));
+          this.$refs["checkerForm"].clearValidate()
           if (JSON.parse(res.msg).image_status === "reversed_side") {
             this.idNumBackImg = URL.createObjectURL(file.raw);
             this.IdCardBackImgState = true;
@@ -948,6 +965,7 @@ export default {
               idCarBackInfo.失效日期.words
             );
             this.checkerForm.idCardBackImg = file.name;
+            this.$refs["checkerForm"].resetFields();
           } else {
             this.$message.error("请上传正确的身份证反面图片");
             this.IdCardBackImgState = false;
@@ -977,6 +995,7 @@ export default {
         submitCompanyInfo(newData).then(() => {
           // 存入草稿成功的同时上传图片
           this.uploadPic(newData.businessLicenseImg, this.buinessPic);
+          Cookies.set("businessName", newData.businessName);
           this.$message({
             type: "success",
             message: "已存入草稿箱!",
@@ -990,6 +1009,7 @@ export default {
           this.uploadPic(newObj.businessLicenseImg, this.buinessPic);
         }
         updateCompanyInfo(newObj).then(() => {
+          Cookies.set("businessName", newObj.businessName);
           this.$message({
             type: "success",
             message: "该草稿信息已成功修改!",
@@ -1127,6 +1147,8 @@ export default {
 
 <style lang="scss" scoped>
 .recruitment {
+  width: 100%;
+  min-width: 960px;
   .goBack {
     padding: 18px 26px;
     box-shadow: 6px 0 6px #eaeaea;

@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     title="更换手机号"
-    width="40%"
+    width="540px"
     :visible.sync="updatePhoneDialog"
     :close-on-click-modal="false"
     :before-close="handleClose"

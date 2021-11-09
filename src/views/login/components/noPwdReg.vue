@@ -2,7 +2,7 @@
   <el-dialog
     title="密码设置"
     :visible.sync="noPwdRegVisible"
-    width="40%"
+    width="600px"
     :before-close="handleClose"
     :close-on-click-modal="false"
   >

@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     title="更换邮箱"
-    width="35%"
+    width="540px"
     :visible.sync="updateEmailDialog"
     :close-on-click-modal="false"
     :before-close="handleClose"
@@ -279,6 +279,7 @@ export default {
 <style lang="scss" scoped>
 .findPsd_form {
   width: 440px;
+  min-width: 440px;
   margin: auto;
   text-align: center;
   .tooltip {

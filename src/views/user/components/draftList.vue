@@ -87,7 +87,7 @@
       </el-dialog>
 
       <span slot="footer" class="dialog-footer">
-        <el-button plain type="primary" @click="addBuiness"
+        <el-button plain type="primary" @click="addBuiness" size="small"
           >新增商家</el-button
         >
       </span>
@@ -141,9 +141,12 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .preview-area {
   width: 400px;
   height: 600px;
+}
+.el-dialog__footer {
+  padding-top: 0px;
 }
 </style>

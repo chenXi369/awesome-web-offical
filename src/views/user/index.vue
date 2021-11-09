@@ -6,23 +6,23 @@
       </header>
 
       <main class="user-main flex">
-        <section class="main-left flex flex-column flex-middle">
+        <section class="main-left flex flex-column">
           <img src="@/assets/images/profile.jpg" class="avatar" />
           <ul class="left-ul">
-            <li class="left-li flex flex-between flex-middle">
+            <li class="left-li flex flex-between">
               <span>姓名：</span><span>{{ userInfo.userName }}</span>
             </li>
-            <li class="left-li flex flex-between flex-middle">
+            <li class="left-li flex flex-between">
               <span>手机：</span><span>{{ userInfo.phone }}</span>
             </li>
-            <li class="left-li flex flex-between flex-middle">
+            <li class="left-li flex flex-between">
               <span>邮箱：</span><span>{{ userInfo.email }}</span>
             </li>
-            <li class="left-li flex flex-between flex-middle">
+            <li class="left-li flex flex-between">
               <span>部门：</span><span>{{ userInfo.department }}</span>
             </li>
-            <li class="left-li flex flex-between flex-middle">
-              <span>公司：</span><span>{{ userInfo.idCardBirthday }}</span>
+            <li class="left-li flex flex-between">
+              <span>公司：</span><span style="text-align: right; width: 220px">{{ userInfo.businessName }}</span>
             </li>
           </ul>
         </section>
@@ -73,6 +73,7 @@
         ></update-email>
         <!-- 密码找回 -->
         <update-pwd
+          :userInfo="userInfo"
           :updatePwdDialog="updatePwdDialog"
           @toBindEmail="toBindEmail"
           @hiddenDialog="hiddenDialog"
@@ -119,6 +120,7 @@ export default {
     UpdatePwd,
   },
   created() {
+    this.isToken = false
     this.getUserInfo();
   },
   methods: {
@@ -207,7 +209,8 @@ export default {
         this.userInfo.phone = res.data.telephone;
         this.userInfo.userName = res.data.userName
         this.userInfo.department = res.data.department
-        // this.userInfo.idCardBirthday = res.data.idCardBirthday
+        this.userInfo.businessName = Cookies.get("businessName")
+        this.isToken = true
       });
     },
     successBindEmail() {
@@ -226,24 +229,27 @@ export default {
 <style lang="scss" scoped>
 .user-article {
   width: 100%;
-  min-width: 1440px;
+  min-width: 960px;
+  height: 100%;
+  min-height: 900px;
   .user-header {
     width: 100%;
+    min-width: 960px;
     height: 110px;
     background: #1890ff;
     z-index: 2021;
   }
   .user-main {
-    max-width: 1000px;
-    min-width: 650px;
+    width: 100%;
+    min-width: 960px;
     margin: 0 auto;
     margin-top: 160px;
-    justify-content: space-between;
+    justify-content: center;
     .edit-userInfo {
       width: 150px;
     }
     .main-left {
-      width: 260px;
+      width: 320px;
       height: 350px;
       border: 1px solid #d5d5d5;
       border-radius: 5px;

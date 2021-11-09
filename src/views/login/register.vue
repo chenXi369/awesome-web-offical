@@ -361,7 +361,7 @@ export default {
 <style lang="scss" scoped>
 .register {
   width: 100%;
-  min-width: 1440px;
+  min-width: 960px;
   .register-header {
     width: 100%;
     height: 110px;

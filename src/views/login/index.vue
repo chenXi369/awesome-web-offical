@@ -10,17 +10,17 @@
         <section class="select-title flex-between">
           <div
             class="login-title"
-            :class="{ active: loginState === 0 }"
-            @click="loginNoPwd"
-          >
-            免密登录
-          </div>
-          <div
-            class="login-title"
             :class="{ active: loginState === 1 }"
             @click="loginPwd"
           >
             密码登录
+          </div>
+          <div
+            class="login-title"
+            :class="{ active: loginState === 0 }"
+            @click="loginNoPwd"
+          >
+            免密登录
           </div>
         </section>
         <template v-if="loginState === 0">
@@ -179,7 +179,7 @@
                   @blur="capsTooltip = false"
                   @keyup.enter.native="handleLogin"
                 />
-                <span class="show-pwd" v-longpress="incrementPlusTen">
+                <span class="show-pwd" @click="incrementPlusTen">
                   <svg-icon
                     :icon-class="
                       passwordType === 'password' ? 'eye' : 'eye-open'
@@ -637,6 +637,7 @@ $cursor: #fff;
   height: 100%;
   min-height: 980px;
   width: 100%;
+  min-width: 960px;
   overflow: hidden;
   background: linear-gradient(135deg, #000, #333, #659) left center/400% 400%;
   animation: move 10s infinite;

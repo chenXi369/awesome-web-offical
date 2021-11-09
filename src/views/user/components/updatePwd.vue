@@ -159,6 +159,10 @@ import Cookies from "js-cookie";
 
 export default {
   props: {
+    userInfo: {
+      type: Object,
+      default: () => {}
+    },
     updatePwdDialog: {
       type: Boolean,
       default: false,
@@ -213,9 +217,10 @@ export default {
     };
   },
   created() {
-    if (Cookies.get("phoneNum") !== undefined) {
-      this.form.account = Cookies.get("phoneNum");
+    if (this.userInfo.phone !== undefined) {
+      this.form.account = this.userInfo.phone
     }
+    console.log(this.form.account)
   },
   methods: {
     handleClose() {
@@ -225,18 +230,6 @@ export default {
         this.$refs["pwdForm"].resetFields();
       }
       this.$emit("hiddenDialog", false);
-    },
-    switchChange() {
-      if (Cookies.get("emailNum") === "null") {
-        this.switchValue = false;
-        this.$confirm("您还没有绑定邮箱，是否立即去绑定", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }).then(() => {
-          this.$emit("toBindEmail");
-        });
-      }
     },
     // 取消
     cancel() {
@@ -304,10 +297,21 @@ export default {
       });
     },
     // 手机和邮箱的切换按钮
-    handleIconClick() {
+    switchChange() {
+      if (this.userInfo.email === "") {
+        this.switchValue = false;
+        this.$confirm("您还没有绑定邮箱，是否立即去绑定", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }).then(() => {
+          this.$emit("toBindEmail");
+        });
+        return
+      }
       if (this.iconPhone === "el-icon-mobile-phone el-input__icon") {
-        if (Cookies.get("emailNum") !== "null") {
-          this.form.account = Cookies.get("emailNum");
+        if (this.userInfo.email !== "") {
+          this.form.account = this.userInfo.email
           this.codeTypeName = "邮箱";
           this.iconPhone = "el-icon-message el-input__icon";
         } else {
@@ -316,7 +320,7 @@ export default {
           this.$message.warning("您暂未绑定邮箱，暂时不能使用邮箱找回！");
         }
       } else {
-        this.form.account = Cookies.get("phoneNum");
+        this.form.account = this.userInfo.phone;
         this.codeTypeName = "手机号";
         this.iconPhone = "el-icon-mobile-phone el-input__icon";
       }
@@ -335,7 +339,7 @@ export default {
         if (valid) {
           updateUserInfo(data).then(() => {
             this.$message.success("密码修改成功，请重新登录！");
-            Cookies.set("password", this.form.againUserPwd, { expires: 30 });
+            Cookies.set("password", "");
             this.$emit("successUpdatePwd");
           });
         }

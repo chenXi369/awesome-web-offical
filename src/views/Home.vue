@@ -326,6 +326,7 @@ export default {
 <style lang="scss" scoped>
 .index {
   width: 100%;
+  min-width: 1280px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -356,12 +357,13 @@ export default {
     }
   }
   .header {
-    width: 60%;
-    padding: 10px 20% 0;
+    width: 100%;
+    min-width: 1280px;
+    padding: 10px 0 0;
     height: 90px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     position: fixed;
     top: 0px;
 
@@ -375,6 +377,8 @@ export default {
       // }
       .logo {
         width: 240px;
+        min-width: 240px;
+        height: 100%;
       }
     }
 
@@ -399,8 +403,9 @@ export default {
   }
 
   .middle {
+    width: 100%;
     margin-top: 80px;
-    padding: 60px 25%;
+    padding: 60px 0;
     display: flex;
     flex-direction: column;
     justify-content: center;

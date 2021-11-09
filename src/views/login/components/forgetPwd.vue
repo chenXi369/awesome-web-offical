@@ -316,6 +316,7 @@ export default {
         if (valid) {
           findPwd(data).then(() => {
             this.$message.success("密码修改成功，请重新登录！");
+            Cookies.set("password", "");
             this.$emit("successFindPwd");
           });
         }
